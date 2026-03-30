@@ -272,6 +272,13 @@ export default function Settings() {
         style={{ background: 'rgba(248, 113, 113, 0.05)', borderColor: 'rgba(248, 113, 113, 0.2)' }}>
         <LogOut size={16} /> Sign Out
       </button>
+
+      {/* Credit */}
+      <div className="mt-8 text-center pb-4">
+        <p className="text-[10px] uppercase tracking-widest font-bold text-white/30">
+          Developed by Pratham Pingle
+        </p>
+      </div>
     </div>
   );
 }

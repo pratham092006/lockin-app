@@ -68,7 +68,7 @@ function Sidebar({ open, onClose, user }) {
         </div>
 
         {/* User snippet */}
-        <div className="p-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="p-4 flex flex-col justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="flex items-center gap-3 p-3 rounded-[16px] border border-white/5 bg-white/5 transition-colors hover:bg-white/10">
             <div className="size-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center glow-lime"
               style={{ background: 'linear-gradient(135deg, #00FFFF, #CCFF00)' }}>
@@ -82,6 +82,11 @@ function Sidebar({ open, onClose, user }) {
               </p>
               <p className="text-xs truncate mono-data" style={{ color: 'rgba(255,255,255,0.5)' }}>{user?.email || ''}</p>
             </div>
+          </div>
+          <div className="mt-4 text-center">
+            <p className="text-[10px] uppercase tracking-widest font-bold text-white/30">
+              Developed by Pratham Pingle
+            </p>
           </div>
         </div>
       </aside>

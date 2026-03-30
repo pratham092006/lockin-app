@@ -475,6 +475,13 @@ export default function Onboarding() {
             </button>
           </div>
         )}
+
+        {/* Credit */}
+        <div className="mt-8 text-center pb-4">
+          <p className="text-[10px] uppercase tracking-widest font-bold text-white/30">
+            Developed by Pratham Pingle
+          </p>
+        </div>
       </div>
     </div>
   );

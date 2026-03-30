@@ -273,6 +273,13 @@ export default function Login() {
               <div className="w-2 h-2 rounded-full shadow-[0_0_8px_#FF3366]" style={{ background: '#FF3366' }} />
             </div>
           </div>
+
+          {/* Credit */}
+          <div className="mt-6 text-center">
+            <p className="text-[10px] uppercase tracking-widest font-bold text-white/30">
+              Developed by Pratham Pingle
+            </p>
+          </div>
           
         </div>
       </main>
