@@ -1,54 +1,41 @@
-// ─── GlassPanel — shared glassmorphism container (#50) ────────────────────────
 import React from 'react';
+import { C } from '../lib/theme';
 
 export default function GlassPanel({ children, className = '', style = {}, onClick }) {
   return (
     <div
       onClick={onClick}
-      className={`rounded-[2rem] ${className}`}
-      style={{
-        background: 'rgba(42,42,42,0.4)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderTop: '1px solid rgba(65,71,85,0.15)',
-        borderLeft: '1px solid rgba(65,71,85,0.15)',
-        ...style,
-      }}
+      className={`glass-panel ${className}`}
+      style={style}
     >
       {children}
     </div>
   );
 }
 
-// ─── EmptyState — standardized empty state pattern (#31) ──────────────────────
 export function EmptyState({ icon: Icon, title, subtitle, action, onAction }) {
   return (
     <GlassPanel className="p-12 flex flex-col items-center text-center">
       {Icon && (
         <div
           className="size-16 rounded-full flex items-center justify-center mb-4"
-          style={{ background: 'rgba(42,42,42,0.6)' }}
+          style={{ background: 'rgba(0,0,0,0.04)' }}
         >
-          <Icon size={28} color="#8b90a0" />
+          <Icon size={28} style={{ color: C.outline }} />
         </div>
       )}
-      <p className="font-bold text-lg" style={{ fontFamily: "'Manrope', system-ui" }}>
+      <p className="font-bold text-lg" style={{ fontFamily: "'Manrope', system-ui", color: C.onSurface }}>
         {title}
       </p>
       {subtitle && (
-        <p className="text-sm mt-1" style={{ color: '#8b90a0' }}>
+        <p className="text-sm mt-1" style={{ color: C.outline }}>
           {subtitle}
         </p>
       )}
       {action && onAction && (
         <button
           onClick={onAction}
-          className="mt-6 px-6 py-3 rounded-2xl font-bold text-sm flex items-center gap-2 transition-all active:scale-95"
-          style={{
-            background: 'linear-gradient(135deg, #4b8eff, #42e355)',
-            color: '#0e0e0e',
-            fontFamily: "'Manrope', system-ui",
-          }}
+          className="mt-6 lv-btn-primary"
         >
           {action}
         </button>

@@ -33,22 +33,22 @@ function normaliseProfile(raw) {
   if (!raw) return null;
   return {
     ...raw,
-    dailyCalorieGoal: raw.daily_calorie_goal ?? 2200,
-    waterIntakeGoal:  raw.water_intake_goal  ?? 8,
+    dailyCalorieGoal: raw.daily_calorie_goal ?? raw.dailyCalorieGoal ?? 2200,
+    waterIntakeGoal:  raw.water_intake_goal  ?? raw.waterIntakeGoal ?? 8,
     height:           raw.height_cm ?? raw.height,
     weight:           raw.weight_kg ?? raw.weight,
-    goalWeight:       raw.goal_weight_kg ?? raw.goal_weight,
-    activityLevel:    raw.activity_level ?? 1.55,
-    fitnessGoal:      raw.fitness_goal   ?? 'maintain',
+    goalWeight:       raw.goal_weight_kg ?? raw.goal_weight ?? raw.goalWeight,
+    activityLevel:    raw.activity_level ?? raw.activityLevel ?? 1.55,
+    fitnessGoal:      raw.fitness_goal   ?? raw.fitnessGoal ?? 'maintain',
     gender:           raw.gender         ?? 'male',
     age:              raw.age,
-    displayName:      raw.display_name,
-    onboardingDone:   raw.onboarding_done ?? false,
-    todayWater:       raw.today_water ?? 0,
-    proteinTarget:    raw.protein_target ?? 150,
-    carbsTarget:      raw.carbs_target ?? 250,
-    fatsTarget:       raw.fats_target ?? 70,
-    waterUnit:        raw.water_unit ?? 'ml', // #34
+    displayName:      raw.display_name ?? raw.displayName,
+    onboardingDone:   raw.onboarding_done ?? raw.onboardingDone ?? false,
+    todayWater:       raw.today_water ?? raw.todayWater ?? 0,
+    proteinTarget:    raw.protein_target ?? raw.proteinTarget ?? 150,
+    carbsTarget:      raw.carbs_target ?? raw.carbsTarget ?? 250,
+    fatsTarget:       raw.fats_target ?? raw.fatsTarget ?? 70,
+    waterUnit:        raw.water_unit ?? raw.waterUnit ?? 'ml', // #34
   };
 }
 
@@ -56,7 +56,6 @@ export function AuthProvider({ children }) {
   const [session,        setSession]        = useState(null);
   const [authLoading,    setAuthLoading]    = useState(true);
   const [rawProfile,     setRawProfile]     = useState(undefined);
-  const [profileLoading, setProfileLoading] = useState(true);
   const lastUserIdRef = useRef(null);
 
   // ── Load auth session ────────────────────────────────────────────────────
@@ -66,6 +65,9 @@ export function AuthProvider({ children }) {
       setAuthLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.id !== lastUserIdRef.current) {
+        setRawProfile(undefined);
+      }
       setSession(session);
       setAuthLoading(false);
     });
@@ -75,21 +77,18 @@ export function AuthProvider({ children }) {
   // ── Load profile + today's water ─────────────────────────────────────────
   useEffect(() => {
     const userId = session?.user?.id;
+    const userEmail = session?.user?.email;
 
-    // #8 fix — always set profileLoading to false when no user
     if (!userId) {
-      setRawProfile(null);
-      setProfileLoading(false);
       lastUserIdRef.current = null;
       return;
     }
     if (lastUserIdRef.current === userId) return;
     lastUserIdRef.current = userId;
-    setProfileLoading(true);
 
     (async () => {
       try {
-        const profile = await ensureProfile(userId, session.user.email); // #37
+        const profile = await ensureProfile(userId, userEmail); // #37
         // Fetch today's water in parallel
         const today = new Date().toISOString().split('T')[0];
         const { data: waterData } = await supabase.from('water_logs')
@@ -97,9 +96,8 @@ export function AuthProvider({ children }) {
         if (profile) profile.today_water = waterData?.cups || 0;
         setRawProfile(profile);
       } catch { setRawProfile(null); }
-      setProfileLoading(false);
     })();
-  }, [session?.user?.id, authLoading]);
+  }, [session?.user?.id, session?.user?.email, authLoading]);
 
   // ── Auth actions ─────────────────────────────────────────────────────────
   const signUp = async ({ email, password, name }) => {
@@ -136,15 +134,22 @@ export function AuthProvider({ children }) {
   };
 
   // ── Derived state ────────────────────────────────────────────────────────
-  const user = session?.user
-    ? {
-        uid: session.user.id, id: session.user.id, email: session.user.email,
-        displayName: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0],
-        photoURL: session.user.user_metadata?.avatar_url || null,
-      }
-    : null;
+  const user = useMemo(() => {
+    if (!session?.user) return null;
+    return {
+      uid: session.user.id,
+      id: session.user.id,
+      email: session.user.email,
+      displayName:
+        session.user.user_metadata?.full_name ||
+        session.user.user_metadata?.name ||
+        session.user.email?.split('@')[0],
+      photoURL: session.user.user_metadata?.avatar_url || null,
+    };
+  }, [session]);
 
   const profile = useMemo(() => normaliseProfile(rawProfile), [rawProfile]);
+  const profileLoading = !!session?.user && rawProfile === undefined;
   const loading = authLoading || (!!session?.user && profileLoading);
 
   const value = useMemo(
@@ -155,6 +160,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext);
 }

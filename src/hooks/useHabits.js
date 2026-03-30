@@ -123,12 +123,12 @@ export function useTodayHabitLogs() {
 // ─── ALL habit logs for a date range (batched — #12/#35) ──────────────────────
 export function useHabitLogsRange(days = 90) {
   const { user } = useAuth();
-  const startDate = new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
 
   const query = useQuery({
     queryKey: ['allHabitLogs', user?.uid, days],
     enabled: !!user?.uid,
     queryFn: async () => {
+      const startDate = new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
       const { data, error } = await supabase.from('habit_logs')
         .select('habit_id, date, completed')
         .eq('user_id', user.uid)

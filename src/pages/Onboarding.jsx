@@ -16,7 +16,7 @@ function Input({ label, name, type = 'text', value, onChange, placeholder, unit,
   const [focused, setFocused] = useState(false);
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-bold uppercase tracking-widest" style={{ color: C.outline }}>
+      <label className="text-[10px] uppercase font-bold tracking-widest text-[#00FFFF]">
         {label}
       </label>
       <div className="relative flex items-center">
@@ -25,16 +25,15 @@ function Input({ label, name, type = 'text', value, onChange, placeholder, unit,
           placeholder={placeholder} min={min} max={max}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          className="w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all"
+          className="w-full px-4 py-3.5 rounded-2xl text-sm outline-none transition-all focus:border-[#00FFFF] focus:shadow-[0_0_12px_rgba(0,255,255,0.15)] placeholder:text-white/20 font-bold"
           style={{
-            background: 'rgba(14,14,14,0.8)',
-            border: `1px solid ${focused ? C.primaryC : C.outlineV}`,
-            color: C.onSurface,
-            boxShadow: focused ? '0 0 0 3px rgba(75,142,255,0.1)' : 'none',
+            background: 'rgba(255,255,255,0.03)',
+            border: `1px solid ${focused ? '#00FFFF' : 'rgba(255,255,255,0.1)'}`,
+            color: '#FFFFFF',
           }}
         />
         {unit && (
-          <span className="absolute right-4 text-xs font-bold pointer-events-none" style={{ color: C.outline }}>
+          <span className="absolute right-4 text-xs font-bold pointer-events-none text-white/40">
             {unit}
           </span>
         )}
@@ -55,7 +54,8 @@ function StepDots({ current, total }) {
             width: i === current ? 24 : 8,
             height: 8,
             borderRadius: 4,
-            background: i === current ? C.primaryC : i < current ? C.secondary : C.outlineV,
+            background: i === current ? '#00FFFF' : i < current ? '#CCFF00' : 'rgba(255,255,255,0.1)',
+            boxShadow: i === current ? '0 0 10px rgba(0,255,255,0.4)' : 'none'
           }}
         />
       ))}
@@ -139,7 +139,7 @@ export default function Onboarding() {
     if (step === 4 && tdee) {
       setForm(f => ({ ...f, dailyCalorieGoal: finalCalories }));
     }
-  }, [step, tdee]);
+  }, [step, tdee, finalCalories]);
 
   const canProceed = () => {
     if (step === 0) return form.age && form.gender;
@@ -184,13 +184,13 @@ export default function Onboarding() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-4 py-12"
-      style={{ background: C.bg, color: C.onSurface, fontFamily: "'Inter', system-ui" }}
+      style={{ background: '#121212', color: '#FFFFFF', fontFamily: "'Inter', system-ui" }}
     >
-      {/* Ambient glow */}
+      {/* Ambient glow - Dark Theme */}
       <div className="fixed inset-0 pointer-events-none" style={{
         background: `
-          radial-gradient(circle at 25% 35%, rgba(0,122,255,0.1) 0%, transparent 50%),
-          radial-gradient(circle at 75% 65%, rgba(66,227,85,0.05) 0%, transparent 50%)
+          radial-gradient(circle at 25% 35%, rgba(0,255,255,0.05) 0%, transparent 50%),
+          radial-gradient(circle at 75% 65%, rgba(204,255,0,0.05) 0%, transparent 50%)
         `
       }} />
 
@@ -199,13 +199,8 @@ export default function Onboarding() {
         {/* Brand */}
         <div className="text-center mb-8">
           <span
-            className="text-2xl font-extrabold tracking-tighter"
-            style={{
-              fontFamily: "'Manrope', system-ui",
-              background: 'linear-gradient(135deg, #adc6ff 0%, #4b8eff 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
+            className="text-3xl font-extrabold tracking-tight uppercase font-display"
+            style={{ color: '#FFFFFF' }}
           >
             LockIn
           </span>
@@ -215,32 +210,20 @@ export default function Onboarding() {
         <StepDots current={step} total={STEPS.length} />
 
         {/* Card */}
-        <div
-          className="mt-6 rounded-3xl overflow-hidden"
-          style={{
-            background: C.glass,
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(65,71,85,0.2)',
-          }}
-        >
+        <div className="mt-6 rounded-[2rem] overflow-hidden glass-panel backdrop-blur-3xl shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
+             style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
           {/* Card header */}
-          <div className="px-8 pt-8 pb-6" style={{ borderBottom: '1px solid rgba(65,71,85,0.2)' }}>
+          <div className="px-8 pt-8 pb-6 border-b" style={{ borderBottomColor: 'rgba(255,255,255,0.05)' }}>
             <div className="flex items-center gap-4">
-              <div
-                className="size-12 rounded-2xl flex items-center justify-center shrink-0"
-                style={{ background: 'rgba(75,142,255,0.12)' }}
-              >
-                <StepIcon size={22} color={C.primaryC} />
+              <div className="size-12 rounded-2xl flex items-center justify-center shrink-0"
+                   style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid rgba(0,255,255,0.2)' }}>
+                <StepIcon size={22} className="drop-shadow-[0_0_8px_rgba(0,255,255,0.5)]" />
               </div>
               <div>
-                <h2
-                  className="font-bold text-xl"
-                  style={{ fontFamily: "'Manrope', system-ui" }}
-                >
+                <h2 className="font-bold text-xl font-header text-white">
                   {STEPS[step].title}
                 </h2>
-                <p className="text-sm mt-0.5" style={{ color: C.outline }}>
+                <p className="text-sm mt-0.5 font-medium text-white/50">
                   {STEPS[step].subtitle}
                 </p>
               </div>
@@ -249,15 +232,13 @@ export default function Onboarding() {
 
           {/* Step content */}
           <div className="px-8 py-6 space-y-5">
-
-            {/* ── Step 0: Basics ── */}
             {step === 0 && (
               <>
                 <Input label="Age" name="age" type="number" min="10" max="100"
                   value={form.age} onChange={onChange} placeholder="25" unit="yrs" />
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-widest" style={{ color: C.outline }}>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[#00FFFF]">
                     Biological Sex
                   </label>
                   <div className="grid grid-cols-2 gap-3">
@@ -266,12 +247,12 @@ export default function Onboarding() {
                         key={g}
                         type="button"
                         onClick={() => set('gender', g)}
-                        className="py-3.5 rounded-xl text-sm font-bold transition-all"
+                        className="py-3.5 rounded-2xl text-sm font-bold transition-all border shadow-sm font-header tracking-wider uppercase"
                         style={{
-                          border: `1px solid ${form.gender === g ? C.primaryC : C.outlineV}`,
-                          background: form.gender === g ? 'rgba(75,142,255,0.12)' : 'rgba(14,14,14,0.6)',
-                          color: form.gender === g ? C.primary : C.outline,
-                          fontFamily: "'Manrope', system-ui",
+                          borderColor: form.gender === g ? '#00FFFF' : 'rgba(255,255,255,0.1)',
+                          background: form.gender === g ? 'rgba(0,255,255,0.1)' : 'rgba(255,255,255,0.03)',
+                          color: form.gender === g ? '#00FFFF' : 'rgba(255,255,255,0.4)',
+                          boxShadow: form.gender === g ? '0 0 16px rgba(0,255,255,0.15)' : 'none'
                         }}
                       >
                         {g === 'male' ? '♂ Male' : '♀ Female'}
@@ -282,7 +263,6 @@ export default function Onboarding() {
               </>
             )}
 
-            {/* ── Step 1: Body metrics ── */}
             {step === 1 && (
               <>
                 <div className="grid grid-cols-2 gap-4">
@@ -296,7 +276,6 @@ export default function Onboarding() {
               </>
             )}
 
-            {/* ── Step 2: Activity level ── */}
             {step === 2 && (
               <div className="space-y-3">
                 {ACTIVITY_LEVELS.map(level => (
@@ -304,25 +283,24 @@ export default function Onboarding() {
                     key={level.value}
                     type="button"
                     onClick={() => set('activityLevel', level.value)}
-                    className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all"
+                    className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all border shadow-sm group hover:bg-white/5"
                     style={{
-                      border: `1px solid ${Number(form.activityLevel) === level.value ? C.primaryC : C.outlineV}`,
-                      background: Number(form.activityLevel) === level.value
-                        ? 'rgba(75,142,255,0.1)'
-                        : 'rgba(14,14,14,0.5)',
+                      borderColor: Number(form.activityLevel) === level.value ? '#00FFFF' : 'rgba(255,255,255,0.1)',
+                      background: Number(form.activityLevel) === level.value ? 'rgba(0,255,255,0.1)' : 'rgba(255,255,255,0.03)',
+                      boxShadow: Number(form.activityLevel) === level.value ? '0 0 16px rgba(0,255,255,0.15)' : 'none'
                     }}
                   >
-                    <span className="text-2xl">{level.icon}</span>
+                    <span className="text-2xl drop-shadow-md">{level.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm" style={{ color: C.onSurface, fontFamily: "'Manrope', system-ui" }}>
+                      <p className="font-bold text-sm font-header tracking-wider" style={{ color: Number(form.activityLevel) === level.value ? '#00FFFF' : '#FFFFFF' }}>
                         {level.label}
                       </p>
-                      <p className="text-xs mt-0.5" style={{ color: C.outline }}>{level.desc}</p>
+                      <p className="text-xs mt-0.5 text-white/50">{level.desc}</p>
                     </div>
                     {Number(form.activityLevel) === level.value && (
-                      <div className="size-5 rounded-full flex items-center justify-center shrink-0"
-                        style={{ background: C.primaryC }}>
-                        <Check size={12} color="#001a41" strokeWidth={3} />
+                      <div className="size-5 rounded-full flex items-center justify-center shrink-0 border border-[#00FFFF]"
+                        style={{ background: '#00FFFF' }}>
+                        <Check size={12} color="#121212" strokeWidth={3} />
                       </div>
                     )}
                   </button>
@@ -330,7 +308,6 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* ── Step 3: Goal ── */}
             {step === 3 && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-3">
@@ -339,36 +316,35 @@ export default function Onboarding() {
                       key={goal.value}
                       type="button"
                       onClick={() => set('fitnessGoal', goal.value)}
-                      className="w-full flex items-center gap-4 p-5 rounded-2xl text-left transition-all"
+                      className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all border shadow-sm group hover:bg-white/5"
                       style={{
-                        border: `1px solid ${form.fitnessGoal === goal.value ? goal.color : C.outlineV}`,
-                        background: form.fitnessGoal === goal.value
-                          ? `${goal.color}12`
-                          : 'rgba(14,14,14,0.5)',
+                        borderColor: form.fitnessGoal === goal.value ? '#00FFFF' : 'rgba(255,255,255,0.1)',
+                        background: form.fitnessGoal === goal.value ? 'rgba(0,255,255,0.1)' : 'rgba(255,255,255,0.03)',
+                        boxShadow: form.fitnessGoal === goal.value ? '0 0 16px rgba(0,255,255,0.15)' : 'none'
                       }}
                     >
-                      <span className="text-3xl">{goal.icon}</span>
+                      <span className="text-2xl">{goal.icon}</span>
                       <div className="flex-1">
-                        <p className="font-bold" style={{ color: C.onSurface, fontFamily: "'Manrope', system-ui" }}>
+                        <p className="font-bold text-sm font-header tracking-wider" style={{ color: form.fitnessGoal === goal.value ? '#00FFFF' : '#FFFFFF' }}>
                           {goal.label}
                         </p>
-                        <p className="text-xs mt-0.5" style={{ color: C.outline }}>
-                          {goal.modifier > 0 ? `+${goal.modifier}` : goal.modifier} kcal from TDEE
+                        <p className="text-xs mt-0.5 flex gap-1 font-medium text-white/50">
+                           <span style={{ color: goal.modifier > 0 ? '#FF3366' : goal.modifier < 0 ? '#CCFF00' : 'rgba(255,255,255,0.4)' }}>{goal.modifier > 0 ? `+${goal.modifier}` : goal.modifier} kcal</span> from TDEE
                         </p>
                       </div>
                       {form.fitnessGoal === goal.value && (
                         <div className="size-5 rounded-full flex items-center justify-center shrink-0"
-                          style={{ background: goal.color }}>
-                          <Check size={12} color="#0e0e0e" strokeWidth={3} />
+                          style={{ background: '#00FFFF' }}>
+                          <Check size={12} color="#121212" strokeWidth={3} />
                         </div>
                       )}
                     </button>
                   ))}
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-widest" style={{ color: C.outline }}>
-                    Daily Water Goal
+                <div className="space-y-1.5 pt-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest block text-[#00FFFF]">
+                    Daily Water Goal (Cups)
                   </label>
                   <div className="flex gap-2 flex-wrap">
                     {[6, 8, 10, 12].map(cups => (
@@ -376,12 +352,11 @@ export default function Onboarding() {
                         key={cups}
                         type="button"
                         onClick={() => set('waterIntakeGoal', cups)}
-                        className="flex-1 min-w-[60px] py-2.5 rounded-xl text-sm font-bold transition-all"
+                        className="flex-1 min-w-[60px] py-3 rounded-2xl text-sm font-bold transition-all border shadow-sm font-header tracking-wider"
                         style={{
-                          border: `1px solid ${form.waterIntakeGoal === cups ? C.primaryC : C.outlineV}`,
-                          background: form.waterIntakeGoal === cups ? 'rgba(75,142,255,0.12)' : 'rgba(14,14,14,0.6)',
-                          color: form.waterIntakeGoal === cups ? C.primary : C.outline,
-                          fontFamily: "'Manrope', system-ui",
+                          borderColor: form.waterIntakeGoal === cups ? '#00FFFF' : 'rgba(255,255,255,0.1)',
+                          background: form.waterIntakeGoal === cups ? 'rgba(0,255,255,0.1)' : 'rgba(255,255,255,0.03)',
+                          color: form.waterIntakeGoal === cups ? '#00FFFF' : 'rgba(255,255,255,0.4)',
                         }}
                       >
                         {cups} cups
@@ -392,68 +367,58 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* ── Step 4: Summary ── */}
             {step === 4 && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { label: 'Daily Calories', value: finalCalories, unit: 'kcal', color: C.primaryC },
-                    { label: 'Water Goal',     value: `${form.waterIntakeGoal} cups`, unit: `${form.waterIntakeGoal * 250}ml`, color: C.primary },
-                    { label: 'Your TDEE',      value: tdee || '—', unit: 'kcal/day', color: C.secondary },
-                    { label: 'Fitness Goal',   value: GOALS.find(g => g.value === form.fitnessGoal)?.label, unit: '', color: '#ffb595' },
+                    { label: 'Daily Calories', value: finalCalories, unit: 'kcal', color: '#00FFFF' },
+                    { label: 'Water Goal',     value: `${form.waterIntakeGoal} cups`, unit: `${form.waterIntakeGoal * 250}ml`, color: '#CCFF00' },
+                    { label: 'Your TDEE',      value: tdee || '—', unit: 'kcal/day', color: '#FF3366' },
+                    { label: 'Fitness Goal',   value: GOALS.find(g => g.value === form.fitnessGoal)?.label, unit: '', color: '#FFFFFF' },
                   ].map(stat => (
                     <div
                       key={stat.label}
-                      className="p-4 rounded-2xl"
-                      style={{ background: 'rgba(14,14,14,0.6)', border: '1px solid rgba(65,71,85,0.2)' }}
+                      className="p-4 rounded-2xl shadow-sm border glass-panel"
+                      style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}
                     >
-                      <p className="text-xs uppercase tracking-widest font-bold mb-1" style={{ color: C.outline }}>
+                      <p className="text-[10px] uppercase tracking-widest font-bold mb-1 text-white/50">
                         {stat.label}
                       </p>
-                      <p className="font-black text-2xl" style={{ fontFamily: "'Manrope', system-ui", color: stat.color }}>
+                      <p className="font-black text-2xl font-display uppercase tracking-tighter" style={{ color: stat.color }}>
                         {stat.value}
                       </p>
                       {stat.unit && (
-                        <p className="text-xs font-medium mt-0.5" style={{ color: C.outline }}>{stat.unit}</p>
+                        <p className="text-[10px] font-bold mt-1 text-white/30 mono-data">{stat.unit}</p>
                       )}
                     </div>
                   ))}
                 </div>
 
-                {/* Body stats row */}
-                <div
-                  className="rounded-2xl p-4 flex items-center justify-around"
-                  style={{ background: 'rgba(14,14,14,0.6)', border: '1px solid rgba(65,71,85,0.2)' }}
-                >
+                <div className="rounded-2xl p-4 flex items-center justify-around shadow-sm border glass-panel"
+                     style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
                   <div className="text-center">
-                    <p className="text-xs uppercase tracking-widest font-bold" style={{ color: C.outline }}>Age</p>
-                    <p className="font-black text-xl" style={{ fontFamily: "'Manrope', system-ui" }}>{form.age}</p>
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-white/50">Age</p>
+                    <p className="font-bold text-lg mt-0.5 font-header text-white">{form.age}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs uppercase tracking-widest font-bold" style={{ color: C.outline }}>Height</p>
-                    <p className="font-black text-xl" style={{ fontFamily: "'Manrope', system-ui" }}>{form.height} cm</p>
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-white/50">Height</p>
+                    <p className="font-bold text-lg mt-0.5 font-header text-white">{form.height} <span className="text-xs text-white/40">cm</span></p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs uppercase tracking-widest font-bold" style={{ color: C.outline }}>Weight</p>
-                    <p className="font-black text-xl" style={{ fontFamily: "'Manrope', system-ui" }}>{form.weight} kg</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs uppercase tracking-widest font-bold" style={{ color: C.outline }}>Gender</p>
-                    <p className="font-black text-xl capitalize" style={{ fontFamily: "'Manrope', system-ui" }}>{form.gender === 'male' ? '♂' : '♀'}</p>
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-white/50">Weight</p>
+                    <p className="font-bold text-lg mt-0.5 font-header text-white">{form.weight} <span className="text-xs text-white/40">kg</span></p>
                   </div>
                 </div>
 
-                <p className="text-xs text-center" style={{ color: C.outline }}>
-                  Based on the <strong style={{ color: C.onSurfaceV }}>Mifflin-St Jeor</strong> equation. You can always update this in Settings.
+                <p className="text-[10px] text-center max-w-xs mx-auto mt-6 text-white/30 tracking-wide uppercase">
+                  Based on the <strong className="text-white/60">Mifflin-St Jeor</strong> equation. You can always update this in Settings.
                 </p>
               </div>
             )}
 
-            {/* Error */}
             {error && (
               <div
-                className="rounded-xl px-4 py-3 text-sm"
-                style={{ background: 'rgba(147,0,10,0.2)', color: C.error, border: '1px solid rgba(147,0,10,0.4)' }}
+                className="rounded-xl px-4 py-3 text-xs font-bold text-[#FF3366] bg-[#FF3366]/10 border border-[#FF3366]/20 shadow-[0_0_12px_rgba(255,51,102,0.1)]"
               >
                 {error}
               </div>
@@ -466,12 +431,10 @@ export default function Onboarding() {
               <button
                 onClick={back}
                 disabled={saving}
-                className="flex items-center gap-2 px-5 py-3.5 rounded-2xl font-bold text-sm transition-all"
+                className="flex items-center gap-1.5 px-5 py-3.5 rounded-xl font-bold text-sm transition-all border hover:bg-white/5 font-header tracking-wider uppercase text-white/60 hover:text-white"
                 style={{
-                  background: 'rgba(42,42,42,0.6)',
-                  border: `1px solid ${C.outlineV}`,
-                  color: C.outline,
-                  fontFamily: "'Manrope', system-ui",
+                  background: 'rgba(255,255,255,0.02)',
+                  borderColor: 'rgba(255,255,255,0.1)',
                 }}
               >
                 <ChevronLeft size={18} /> Back
@@ -481,22 +444,19 @@ export default function Onboarding() {
             <button
               onClick={step === STEPS.length - 1 ? finish : next}
               disabled={!canProceed() || saving}
-              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50"
-              style={{
-                background: step === STEPS.length - 1
-                  ? 'linear-gradient(135deg, #04c339, #42e355)'
-                  : 'linear-gradient(135deg, #4b8eff, #adc6ff)',
-                color: step === STEPS.length - 1 ? '#002204' : '#001a41',
-                fontFamily: "'Manrope', system-ui",
-                boxShadow: step === STEPS.length - 1
-                  ? '0 4px 20px rgba(4,195,57,0.3)'
-                  : '0 4px 20px rgba(75,142,255,0.3)',
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-xs tracking-widest uppercase transition-all active:scale-[0.98] disabled:opacity-50 border shadow-sm font-header"
+              style={step === STEPS.length - 1 ? {
+                 background: 'rgba(204,255,0,0.1)', borderColor: 'rgba(204,255,0,0.3)', color: '#CCFF00',
+                 boxShadow: '0 0 20px rgba(204,255,0,0.2)'
+              } : {
+                 background: 'rgba(0,255,255,0.1)', borderColor: 'rgba(0,255,255,0.3)', color: '#00FFFF',
+                 boxShadow: '0 0 20px rgba(0,255,255,0.2)'
               }}
             >
               {saving ? (
                 <><Loader2 size={18} className="animate-spin" /> Saving…</>
               ) : step === STEPS.length - 1 ? (
-                <><Check size={18} strokeWidth={3} /> Let's Go!</>
+                <><Check size={18} strokeWidth={3} /> Finish Setup</>
               ) : (
                 <>Continue <ChevronRight size={18} /></>
               )}
@@ -506,11 +466,10 @@ export default function Onboarding() {
 
         {/* Skip link */}
         {step < STEPS.length - 1 && (
-          <div className="text-center mt-4">
+          <div className="text-center mt-6">
             <button
               onClick={() => setStep(STEPS.length - 1)}
-              className="text-xs transition-colors"
-              style={{ color: C.outline }}
+              className="text-[10px] font-bold uppercase tracking-widest transition-colors hover:text-white text-white/30"
             >
               Skip setup — I'll configure later
             </button>

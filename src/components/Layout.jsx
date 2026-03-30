@@ -23,64 +23,64 @@ function Sidebar({ open, onClose, user }) {
     <>
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
           onClick={onClose} />
       )}
       <aside
-        className={`fixed top-0 left-0 h-screen w-64 z-50 flex flex-col transition-transform duration-300 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{ background: 'rgba(20,20,20,0.85)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderRight: '1px solid rgba(65,71,85,0.2)' }}>
+        className={`fixed top-0 left-0 h-screen w-64 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{ background: 'rgba(18,18,18,0.6)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
         
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-5" style={{ borderBottom: '1px solid rgba(65,71,85,0.15)' }}>
+        <div className="h-16 flex items-center justify-between px-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="LockIn" className="h-8 w-auto" onError={(e) => { e.target.style.display = 'none'; }} />
-            <span className="text-xl font-extrabold tracking-tighter"
-              style={{ fontFamily: "'Manrope', system-ui", background: 'linear-gradient(135deg, #adc6ff 0%, #4b8eff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span className="text-xl tracking-tighter gradient-text"
+              style={{ fontFamily: 'var(--font-display)' }}>
               LockIn
             </span>
           </div>
-          <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg transition-colors" style={{ color: C.outline }}>
+          <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg transition-colors hover:bg-white/5" style={{ color: C.outline }}>
             <X size={20} />
           </button>
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 py-6 px-3 space-y-1">
-          {NAV_ITEMS.map(({ path, icon: Icon, label }) => (
-            <NavLink key={path} to={path} end={path === '/'} onClick={onClose}
-              className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200"
+        <nav className="flex-1 py-6 px-3 space-y-2">
+          {NAV_ITEMS.map((item) => (
+            <NavLink key={item.path} to={item.path} end={item.path === '/'} onClick={onClose}
+              className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-semibold transition-all duration-300 ${isActive ? 'glow-cyan' : 'hover:bg-white/5'}`}
               style={({ isActive }) => isActive
-                ? { background: 'rgba(75,142,255,0.15)', color: C.primary, boxShadow: '0 0 15px rgba(0,122,255,0.15)' }
-                : { color: C.outline }}>
-              <Icon size={20} className="shrink-0" />
-              <span style={{ fontFamily: "'Inter', system-ui" }}>{label}</span>
+                ? { background: 'rgba(0,255,255,0.1)', color: '#00FFFF' }
+                : { color: 'rgba(255,255,255,0.6)' }}>
+              <item.icon size={20} className="shrink-0" />
+              <span style={{ fontFamily: 'var(--font-header)', letterSpacing: '0.02em', textTransform: 'uppercase', fontSize: '12px' }}>{item.label}</span>
             </NavLink>
           ))}
         </nav>
 
-        {/* #27 — Sign out in sidebar */}
-        <div className="px-3 mb-2">
+        {/* Sign out */}
+        <div className="px-3 mb-4">
           <button onClick={async () => { await signOutUser(); navigate('/login'); }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all"
-            style={{ color: C.error }}>
-            <LogOut size={20} /> Sign Out
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-semibold transition-all hover:bg-white/5"
+            style={{ color: C.errorC }}>
+            <LogOut size={20} /> <span style={{ fontFamily: 'var(--font-header)', letterSpacing: '0.02em', textTransform: 'uppercase', fontSize: '12px' }}>Sign Out</span>
           </button>
         </div>
 
         {/* User snippet */}
-        <div className="p-4" style={{ borderTop: '1px solid rgba(65,71,85,0.15)' }}>
-          <div className="flex items-center gap-3 p-3 rounded-2xl" style={{ background: 'rgba(42,42,42,0.4)' }}>
-            <div className="size-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #4b8eff, #42e355)', flexShrink: 0 }}>
+        <div className="p-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="flex items-center gap-3 p-3 rounded-[16px] border border-white/5 bg-white/5 transition-colors hover:bg-white/10">
+            <div className="size-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center glow-lime"
+              style={{ background: 'linear-gradient(135deg, #00FFFF, #CCFF00)' }}>
               {user?.photoURL
                 ? <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
-                : <UserCircle2 size={22} color="#0e0e0e" />}
+                : <UserCircle2 size={22} color="#121212" />}
             </div>
             <div className="overflow-hidden flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate" style={{ color: C.onSurface, fontFamily: "'Manrope', system-ui" }}>
+              <p className="text-sm font-bold truncate text-white" style={{ fontFamily: 'var(--font-header)' }}>
                 {user?.displayName || 'User'}
               </p>
-              <p className="text-xs truncate" style={{ color: C.outline }}>{user?.email || ''}</p>
+              <p className="text-xs truncate mono-data" style={{ color: 'rgba(255,255,255,0.5)' }}>{user?.email || ''}</p>
             </div>
           </div>
         </div>
@@ -96,38 +96,36 @@ function Header({ onMenuClick }) {
 
   return (
     <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-6"
-      style={{ background: 'rgba(19,19,19,0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(65,71,85,0.12)' }}>
+      style={{ background: 'rgba(18,18,18,0.65)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
       <div className="flex items-center gap-3 lg:hidden">
-        <button onClick={onMenuClick} className="p-2 rounded-xl transition-colors"
-          style={{ color: C.onSurfaceV, background: 'rgba(42,42,42,0.4)' }}>
+        <button onClick={onMenuClick} className="p-2 rounded-xl transition-colors hover:bg-white/10"
+          style={{ color: '#F8F9FA', background: 'rgba(255,255,255,0.05)' }}>
           <Menu size={22} />
         </button>
-        <img src="/logo.png" alt="LockIn" className="h-7 w-auto" onError={(e) => { e.target.style.display = 'none'; }} />
-        <span className="text-lg font-extrabold tracking-tighter"
-          style={{ fontFamily: "'Manrope', system-ui", background: 'linear-gradient(135deg, #adc6ff 0%, #4b8eff 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+        <span className="text-lg tracking-tighter gradient-text"
+          style={{ fontFamily: 'var(--font-display)' }}>
           LockIn
         </span>
       </div>
       <div className="hidden lg:block">
-        <p className="text-xs uppercase tracking-widest font-semibold" style={{ color: C.outline }}>
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+        <p className="text-xs uppercase tracking-widest font-bold mono-data" style={{ color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>
+          {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit' }).toUpperCase()}
         </p>
       </div>
-      {/* #26 — removed bell icon, only user menu */}
       <div className="relative">
-        <button onClick={() => setShowMenu(v => !v)} className="p-2 rounded-full transition-colors" style={{ color: C.outline }}>
+        <button onClick={() => setShowMenu(v => !v)} className="p-2 rounded-full transition-colors hover:bg-white/10" style={{ color: '#F8F9FA' }}>
           <UserCircle2 size={20} />
         </button>
         {showMenu && (
-          <div className="absolute right-0 top-12 rounded-2xl shadow-2xl py-2 z-50 min-w-48"
-            style={{ background: 'rgba(30,30,30,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(65,71,85,0.3)' }}>
-            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(65,71,85,0.2)' }}>
-              <p className="text-sm font-semibold" style={{ color: C.onSurface }}>{user?.displayName}</p>
-              <p className="text-xs" style={{ color: C.outline }}>{user?.email}</p>
+          <div className="absolute right-0 top-12 rounded-[20px] py-2 z-50 min-w-48 glow-cyan"
+            style={{ background: 'rgba(30,30,30,0.9)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,255,255,0.15)' }}>
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <p className="text-sm font-bold text-white" style={{ fontFamily: 'var(--font-header)' }}>{user?.displayName}</p>
+              <p className="text-[10px] mono-data" style={{ color: 'rgba(255,255,255,0.5)' }}>{user?.email}</p>
             </div>
             <button onClick={async () => { await signOutUser(); navigate('/login'); }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-white/5"
-              style={{ color: '#ffb4ab' }}>
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-white/5 font-bold"
+              style={{ color: C.errorC, fontFamily: 'var(--font-header)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em' }}>
               <LogOut size={16} /> Sign Out
             </button>
           </div>
@@ -137,7 +135,6 @@ function Header({ onMenuClick }) {
   );
 }
 
-// #25 — mobile bottom nav now includes Settings
 function BottomNav() {
   const BOTTOM_ITEMS = [
     { path: '/',          icon: LayoutDashboard, label: 'Home' },
@@ -148,21 +145,21 @@ function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 w-full z-50 lg:hidden flex justify-around items-center h-20 px-2"
-      style={{ background: 'rgba(19,19,19,0.88)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-        borderTop: '1px solid rgba(255,255,255,0.05)', borderTopLeftRadius: '2rem', borderTopRightRadius: '2rem',
+    <nav className="fixed bottom-0 w-full z-50 lg:hidden flex justify-around items-center h-20 px-4"
+      style={{ background: 'rgba(18,18,18,0.85)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)',
+        borderTop: '1px solid rgba(255,255,255,0.08)', borderTopLeftRadius: '32px', borderTopRightRadius: '32px',
         boxShadow: '0 -10px 40px rgba(0,0,0,0.5)' }}>
-      {BOTTOM_ITEMS.map(({ path, icon: Icon, label }) => (
-        <NavLink key={path} to={path} end={path === '/'}
-          className="flex flex-col items-center justify-center transition-all duration-150 active:scale-90 px-2 py-1.5 rounded-2xl"
+      {BOTTOM_ITEMS.map((item) => (
+        <NavLink key={item.path} to={item.path} end={item.path === '/'}
+          className={({ isActive }) => `flex flex-col items-center justify-center transition-all duration-300 active:scale-95 px-3 py-2 rounded-[20px] ${isActive ? 'glow-cyan' : ''}`}
           style={({ isActive }) => isActive
-            ? { color: '#4b8eff', background: 'rgba(75,142,255,0.12)', boxShadow: '0 0 15px rgba(0,122,255,0.18)' }
-            : { color: '#8b90a0' }}>
+            ? { color: '#00FFFF', background: 'rgba(0,255,255,0.1)' }
+            : { color: 'rgba(255,255,255,0.4)' }}>
           {({ isActive }) => (
             <>
-              <Icon size={20} fill={isActive ? 'currentColor' : 'none'} />
-              <span className="text-[9px] uppercase tracking-widest font-semibold mt-0.5"
-                style={{ fontFamily: "'Inter', system-ui" }}>{label}</span>
+              <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} fill={isActive ? 'rgba(0,255,255,0.2)' : 'none'} />
+              <span className="text-[9px] uppercase font-bold mt-1"
+                style={{ fontFamily: 'var(--font-header)', letterSpacing: '0.05em' }}>{item.label}</span>
             </>
           )}
         </NavLink>
@@ -176,11 +173,9 @@ export default function Layout() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#131313', color: '#e5e2e1' }}>
-      <div className="fixed inset-0 pointer-events-none z-0"
-        style={{ background: 'radial-gradient(circle at 15% 25%, rgba(0,122,255,0.07) 0%, transparent 45%), radial-gradient(circle at 85% 75%, rgba(66,227,85,0.04) 0%, transparent 45%)' }} />
+    <div className="min-h-screen flex relative bg-[#121212]">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={user} />
-      <main className="flex-1 flex flex-col lg:ml-64 relative z-10">
+      <main className="flex-1 flex flex-col lg:ml-64 relative z-10 w-full min-w-0">
         <Header onMenuClick={() => setSidebarOpen(true)} />
         <div className="flex-1 overflow-auto px-4 md:px-6 lg:px-8 py-6 pb-28 lg:pb-8">
           <div className="max-w-5xl mx-auto w-full"><Outlet /></div>
