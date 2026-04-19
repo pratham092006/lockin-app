@@ -1,30 +1,55 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { C } from '../lib/theme';
+import { motion } from 'framer-motion';
+import { Home, WifiOff, RefreshCcw, ShieldAlert } from 'lucide-react';
+import { Button } from '../components/ui/Button';
+import { GlassCard } from '../components/ui/GlassCard';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ background: C.bg, color: C.onSurface, fontFamily: "'Inter', system-ui" }}>
-      <div className="fixed inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(circle at 30% 40%, rgba(0,122,255,0.08) 0%, transparent 50%),radial-gradient(circle at 70% 60%, rgba(66,227,85,0.04) 0%, transparent 50%)' }} />
-      <div className="relative z-10 text-center p-8 rounded-3xl"
-        style={{ background: 'rgba(42,42,42,0.4)', backdropFilter: 'blur(20px)', border: '1px solid rgba(65,71,85,0.2)', maxWidth: '28rem' }}>
-        <div className="text-7xl mb-4">🧭</div>
-        <h1 className="text-5xl font-black mb-2"
-          style={{ fontFamily: "'Manrope', system-ui", background: 'linear-gradient(135deg, #adc6ff, #4b8eff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          404
-        </h1>
-        <p className="text-lg font-semibold mb-1" style={{ fontFamily: "'Manrope', system-ui" }}>Page Not Found</p>
-        <p className="text-sm mb-6" style={{ color: C.outline }}>
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <Link to="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm transition-all active:scale-95"
-          style={{ background: 'linear-gradient(135deg, #4b8eff, #adc6ff)', color: '#001a41', fontFamily: "'Manrope', system-ui", boxShadow: '0 4px 20px rgba(75,142,255,0.35)' }}>
-          Go Home
-        </Link>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] px-6 relative overflow-hidden">
+      
+      {/* Background Ambience */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[20%] left-[10%] size-[500px] bg-white/5 blur-[120px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[20%] right-[10%] size-[500px] bg-white/5 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
+
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative z-10 w-full max-w-md"
+      >
+        <GlassCard className="p-12 text-center relative overflow-hidden">
+           <div className="absolute top-0 left-0 w-full h-1 bg-white/10" />
+           
+           <div className="flex justify-center mb-10">
+              <div className="size-24 rounded-[32px] flex items-center justify-center bg-white/5 text-white/40 border border-white/10">
+                 <WifiOff size={40} />
+              </div>
+           </div>
+
+           <div className="space-y-4 mb-10">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                 <p className="text-[10px] uppercase tracking-widest font-bold text-white/20">Error 404</p>
+              </div>
+              <h1 className="text-4xl font-bold tracking-tight text-white uppercase">Page Not Found</h1>
+              <p className="text-sm text-white/40 font-medium leading-relaxed">
+                 The page you are looking for has been moved or no longer exists.
+              </p>
+           </div>
+
+           <Link to="/">
+             <Button className="w-full h-16 rounded-2xl bg-white text-black font-bold uppercase tracking-widest hover:bg-white/90">
+                <Home size={18} className="mr-2" /> Back to Dashboard
+             </Button>
+           </Link>
+
+           <div className="mt-12 pt-8 border-t border-white/5 opacity-20">
+              <p className="text-[10px] font-bold uppercase tracking-widest">Developed by Pratham Pingle</p>
+           </div>
+        </GlassCard>
+      </motion.div>
     </div>
   );
 }

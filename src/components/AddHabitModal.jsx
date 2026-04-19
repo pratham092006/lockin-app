@@ -1,20 +1,11 @@
 import React, { useState } from 'react';
 import Modal from './Modal';
+import { Input } from './ui/Input';
+import { Button } from './ui/Button';
+import { cn } from '../lib/utils';
+import { Sparkles, Target, Palette } from 'lucide-react';
 
 const COLORS = ['#CCFF00', '#00FFFF', '#8B5CF6', '#F43F5E', '#EC4899', '#0ea5e9', '#14B8A6', '#F59E0B'];
-
-const inputStyle = {
-  width: '100%',
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '12px',
-  padding: '0.65rem 1rem',
-  color: '#FFFFFF',
-  fontFamily: 'var(--font-mono)',
-  fontSize: '0.875rem',
-  outline: 'none',
-  transition: 'all 0.2s',
-};
 
 export default function AddHabitModal({ isOpen, onClose, onSubmit }) {
   const [form, setForm] = useState({ name: '', description: '', color: '#CCFF00' });
@@ -25,69 +16,123 @@ export default function AddHabitModal({ isOpen, onClose, onSubmit }) {
     if (!form.name.trim()) return;
     setLoading(true);
     try {
-      await onSubmit({ name: form.name.trim(), description: form.description.trim(), color: form.color });
+      await onSubmit({ 
+        name: form.name.trim(), 
+        description: form.description.trim(), 
+        color: form.color 
+      });
       setForm({ name: '', description: '', color: '#CCFF00' });
       onClose();
-    } catch (err) { console.error('Failed to create habit', err); }
+    } catch (err) { 
+      console.error('Failed to create habit', err); 
+    }
     setLoading(false);
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="New Habit">
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-1.5">
-          <label className="text-[10px] uppercase font-bold tracking-widest text-white/50">
-            Habit Name <span className="text-red-400">*</span>
-          </label>
-          <input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-            placeholder="e.g. Drink 8 glasses of water" autoFocus style={inputStyle} className="focus:border-[#CCFF00] focus:shadow-[0_0_8px_rgba(204,255,0,0.3)] placeholder:text-white/20" />
+    <Modal isOpen={isOpen} onClose={onClose} title="Initialize Protocol">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        
+        {/* Habit Identity */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Target size={14} className="text-cyan-400" />
+            <label className="text-[10px] uppercase font-black tracking-[0.2em] text-white/40">
+              Protocol Identity
+            </label>
+          </div>
+          <Input 
+            value={form.name} 
+            onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
+            placeholder="e.g. MORNING HYDRATION" 
+            autoFocus 
+            className="h-14 text-lg font-black font-display uppercase tracking-tight placeholder:text-white/5"
+          />
+          <textarea 
+            value={form.description} 
+            onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
+            placeholder="Define optimization objective..." 
+            rows={2}
+            className={cn(
+              "w-full bg-white/[0.02] border border-white/10 rounded-2xl p-4 text-sm text-white outline-none transition-all",
+              "focus:border-cyan-500/50 focus:bg-white/[0.05] placeholder:text-white/10 resize-none"
+            )}
+          />
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-[10px] uppercase font-bold tracking-widest text-white/50">Description</label>
-          <textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
-            placeholder="Optional description…" rows={2}
-            style={{ ...inputStyle, resize: 'none' }} className="focus:border-[#00FFFF] focus:shadow-[0_0_8px_rgba(0,255,255,0.3)] placeholder:text-white/20" />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-[10px] uppercase font-bold tracking-widest block mb-2 text-white/50">Color Tag</label>
-          <div className="flex gap-3 flex-wrap">
+        {/* Neural Tag / Color */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Palette size={14} className="text-purple-400" />
+            <label className="text-[10px] uppercase font-black tracking-[0.2em] text-white/40">
+              Neural Signature
+            </label>
+          </div>
+          <div className="flex gap-3 flex-wrap p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
             {COLORS.map(color => (
-              <button key={color} type="button" onClick={() => setForm(f => ({ ...f, color }))}
-                className="size-10 rounded-full transition-all flex items-center justify-center shadow-sm"
-                style={{
-                  background: color,
-                  border: form.color === color ? `3px solid #121212` : '2px solid transparent',
-                  transform: form.color === color ? 'scale(1.15)' : 'scale(1)',
-                  boxShadow: form.color === color ? `0 0 0 2px ${color}, 0 0 16px ${color}80` : 'none',
-                }} />
+              <button 
+                key={color} 
+                type="button" 
+                onClick={() => setForm(f => ({ ...f, color }))}
+                className={cn(
+                  "size-10 rounded-xl transition-all duration-300 relative",
+                  form.color === color ? "scale-110 shadow-lg" : "opacity-40 hover:opacity-100 scale-90"
+                )}
+                style={{ background: color }}
+              >
+                {form.color === color && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="size-2 rounded-full bg-black/40" />
+                  </div>
+                )}
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Preview */}
-        <div className="p-4 rounded-2xl shadow-sm border mt-4" style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.05)' }}>
-          <p className="text-[10px] uppercase tracking-widest font-bold mb-3 text-white/50">Preview</p>
-          <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md p-3 rounded-xl border" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-            <div className="size-10 rounded-xl shrink-0 flex items-center justify-center border" style={{ background: `${form.color}20`, borderColor: `${form.color}50` }}>
-              <div className="size-3 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.5)]" style={{ background: form.color }} />
+        {/* Integration Preview */}
+        <div className="p-6 rounded-3xl border border-white/5 bg-white/[0.01] relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-3">
+             <Sparkles size={12} className="text-white/10" />
+          </div>
+          <p className="text-[9px] uppercase tracking-[0.3em] font-black mb-4 text-white/20">Protocol Preview</p>
+          <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+            <div 
+              className="size-12 rounded-2xl shrink-0 flex items-center justify-center border transition-all duration-500" 
+              style={{ background: `${form.color}15`, borderColor: `${form.color}30` }}
+            >
+              <div 
+                className="size-4 rounded-full shadow-lg" 
+                style={{ background: form.color, boxShadow: `0 0 15px ${form.color}80` }} 
+              />
             </div>
-            <span className="font-bold text-sm text-white font-header tracking-wide">
-              {form.name || 'Your habit name'}
-            </span>
+            <div className="min-w-0">
+               <span className="font-black text-xl text-white font-display tracking-tight uppercase leading-none block truncate">
+                {form.name || 'Protocol.alpha'}
+              </span>
+              <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest mt-1 block">READY FOR SYNC</span>
+            </div>
           </div>
         </div>
 
-        <div className="flex gap-4 pt-6 border-t border-white/10">
-          <button type="button" onClick={onClose}
-            className="flex-1 py-3.5 rounded-xl font-bold text-sm transition-all border shadow-sm text-white/70 bg-white/5 border-white/10 hover:bg-white/10 font-header tracking-wide">
-            Cancel
-          </button>
-          <button type="submit" disabled={loading || !form.name.trim()}
-            className="flex-1 py-3.5 rounded-xl font-bold text-sm transition-all disabled:opacity-50 lv-btn-primary hover:scale-[1.02] active:scale-[0.98] font-header tracking-wide uppercase">
-            {loading ? 'Creating…' : 'Create Habit'}
-          </button>
+        {/* Actions */}
+        <div className="flex gap-4 pt-4">
+          <Button 
+            type="button" 
+            variant="glass" 
+            onClick={onClose}
+            className="flex-1 h-14 rounded-2xl font-black uppercase text-xs tracking-widest text-white/40"
+          >
+            Abort
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={loading || !form.name.trim()}
+            glow
+            className="flex-1 h-14 rounded-2xl font-black uppercase text-xs tracking-widest"
+          >
+            {loading ? 'Initializing...' : 'Confirm Sync'}
+          </Button>
         </div>
       </form>
     </Modal>

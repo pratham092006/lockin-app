@@ -1,92 +1,127 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Dumbbell, Utensils, CalendarCheck,
-  Settings, Menu, X, UserCircle2, LogOut
+  Settings, Menu, X, UserCircle2, LogOut, ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.jsx';
-import { C } from '../lib/theme';
+import { cn } from '../lib/utils';
 
 const NAV_ITEMS = [
-  { path: '/',          icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/workouts',  icon: Dumbbell,        label: 'Workouts'  },
-  { path: '/nutrition', icon: Utensils,         label: 'Nutrition' },
-  { path: '/habits',    icon: CalendarCheck,   label: 'Habits'    },
-  { path: '/settings',  icon: Settings,        label: 'Settings'  },
+  { path: '/',          icon: LayoutDashboard, label: 'Dashboard', short: 'Dash' },
+  { path: '/workouts',  icon: Dumbbell,        label: 'Workouts',  short: 'Gym' },
+  { path: '/nutrition', icon: Utensils,        label: 'Nutrition', short: 'Meal' },
+  { path: '/habits',    icon: CalendarCheck,   label: 'Habits',    short: 'Habits' },
+  { path: '/settings',  icon: Settings,        label: 'Settings',  short: 'Settings' },
 ];
 
 function Sidebar({ open, onClose, user }) {
   const { signOutUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <>
-      {open && (
-        <div className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
-          onClick={onClose} />
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 lg:hidden bg-black/60 backdrop-blur-md"
+            onClick={onClose} 
+          />
+        )}
+      </AnimatePresence>
+
       <aside
-        className={`fixed top-0 left-0 h-screen w-64 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{ background: 'rgba(18,18,18,0.6)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
-        
-        {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="LockIn" className="h-8 w-auto" onError={(e) => { e.target.style.display = 'none'; }} />
-            <span className="text-xl tracking-tighter gradient-text"
-              style={{ fontFamily: 'var(--font-display)' }}>
+        className={cn(
+          "fixed top-0 left-0 h-screen w-72 z-50 flex flex-col transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
+          "bg-[#0a0a0a] border-r border-white/5 shadow-2xl",
+          open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+      >
+
+        {/* Logo Section */}
+        <div className="h-24 flex items-center justify-between px-8 border-b border-white/5 relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-xl bg-white/5 flex items-center justify-center">
+                <span className="font-bold text-xs text-white">LI</span>
+            </div>
+            <span className="text-2xl font-bold tracking-tight text-white">
               LockIn
             </span>
           </div>
-          <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg transition-colors hover:bg-white/5" style={{ color: C.outline }}>
+          <button onClick={onClose} className="lg:hidden size-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        {/* Nav items */}
-        <nav className="flex-1 py-6 px-3 space-y-2">
-          {NAV_ITEMS.map((item) => (
-            <NavLink key={item.path} to={item.path} end={item.path === '/'} onClick={onClose}
-              className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-semibold transition-all duration-300 ${isActive ? 'glow-cyan' : 'hover:bg-white/5'}`}
-              style={({ isActive }) => isActive
-                ? { background: 'rgba(0,255,255,0.1)', color: '#00FFFF' }
-                : { color: 'rgba(255,255,255,0.6)' }}>
-              <item.icon size={20} className="shrink-0" />
-              <span style={{ fontFamily: 'var(--font-header)', letterSpacing: '0.02em', textTransform: 'uppercase', fontSize: '12px' }}>{item.label}</span>
-            </NavLink>
-          ))}
+        {/* Navigation */}
+        <nav className="flex-1 py-10 px-4 space-y-2.5 overflow-y-auto relative z-10 custom-scrollbar">
+          {NAV_ITEMS.map((item) => {
+            const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+            
+            return (
+              <NavLink 
+                key={item.path} 
+                to={item.path} 
+                onClick={onClose}
+                className={cn(
+                  "group flex items-center justify-between px-5 h-12 rounded-xl text-sm font-medium transition-all duration-300",
+                  isActive 
+                    ? "bg-white/10 text-white" 
+                    : "text-white/40 hover:text-white/70 hover:bg-white/[0.03]"
+                )}
+              >
+                <div className="flex items-center gap-4">
+                  <item.icon 
+                    size={20} 
+                    className={cn(
+                      "transition-all duration-300",
+                      isActive ? "text-white" : "text-white/30"
+                    )} 
+                  />
+                  <span className="truncate">{item.label}</span>
+                </div>
+                {isActive && (
+                  <div className="size-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
+                )}
+              </NavLink>
+            );
+          })}
         </nav>
 
-        {/* Sign out */}
-        <div className="px-3 mb-4">
-          <button onClick={async () => { await signOutUser(); navigate('/login'); }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-[16px] text-sm font-semibold transition-all hover:bg-white/5"
-            style={{ color: C.errorC }}>
-            <LogOut size={20} /> <span style={{ fontFamily: 'var(--font-header)', letterSpacing: '0.02em', textTransform: 'uppercase', fontSize: '12px' }}>Sign Out</span>
-          </button>
-        </div>
-
-        {/* User snippet */}
-        <div className="p-4 flex flex-col justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="flex items-center gap-3 p-3 rounded-[16px] border border-white/5 bg-white/5 transition-colors hover:bg-white/10">
-            <div className="size-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center glow-lime"
-              style={{ background: 'linear-gradient(135deg, #00FFFF, #CCFF00)' }}>
-              {user?.photoURL
-                ? <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
-                : <UserCircle2 size={22} color="#121212" />}
-            </div>
-            <div className="overflow-hidden flex-1 min-w-0">
-              <p className="text-sm font-bold truncate text-white" style={{ fontFamily: 'var(--font-header)' }}>
-                {user?.displayName || 'User'}
-              </p>
-              <p className="text-xs truncate mono-data" style={{ color: 'rgba(255,255,255,0.5)' }}>{user?.email || ''}</p>
-            </div>
+        {/* User / Footer Section */}
+        <div className="p-4 bg-white/[0.02] border-t border-white/5 relative z-10">
+          <div className="flex items-center gap-4 p-3 rounded-xl transition-all duration-300 border border-transparent hover:border-white/5 hover:bg-white/[0.03]">
+             <div className="size-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+                 {user?.photoURL ? (
+                    <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
+                 ) : (
+                    <UserCircle2 size={24} className="text-white/40" />
+                 )}
+             </div>
+             <div className="min-w-0">
+               <p className="text-sm font-semibold text-white truncate leading-none">
+                 {user?.displayName || 'USER'}
+               </p>
+               <p className="text-[10px] text-white/30 mt-1 truncate uppercase tracking-widest font-medium">Standard Plan</p>
+             </div>
           </div>
-          <div className="mt-4 text-center">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-white/30">
-              Developed by Pratham Pingle
-            </p>
+
+          <div className="grid grid-cols-1 gap-2 mt-4 px-1">
+             <button 
+               onClick={async () => { await signOutUser(); navigate('/login'); }}
+               className="w-full flex items-center justify-center gap-2 h-10 rounded-lg text-[10px] font-bold uppercase tracking-widest text-red-500/70 hover:text-white hover:bg-red-500 transition-all active:scale-95"
+             >
+               <LogOut size={14} /> SIGN OUT
+             </button>
+             
+             <p className="py-4 text-[9px] font-black text-white/10 uppercase tracking-[0.3em] text-center border-t border-white/5">
+                V1.0.4.PRO-ALPHA • STABLE
+             </p>
           </div>
         </div>
       </aside>
@@ -95,80 +130,89 @@ function Sidebar({ open, onClose, user }) {
 }
 
 function Header({ onMenuClick }) {
-  const { user, signOutUser } = useAuth();
-  const navigate = useNavigate();
-  const [showMenu, setShowMenu] = useState(false);
+  const { user } = useAuth();
+  const location = useLocation();
+  const currentPath = NAV_ITEMS.find(i => i.path === location.pathname)?.label || 'DASHBOARD';
 
   return (
-    <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-6"
-      style={{ background: 'rgba(18,18,18,0.65)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-      <div className="flex items-center gap-3 lg:hidden">
-        <button onClick={onMenuClick} className="p-2 rounded-xl transition-colors hover:bg-white/10"
-          style={{ color: '#F8F9FA', background: 'rgba(255,255,255,0.05)' }}>
-          <Menu size={22} />
+    <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-6 md:px-10 bg-black border-b border-white/5">
+      <div className="flex items-center gap-4">
+        <button 
+          onClick={onMenuClick} 
+          className={cn(
+            "lg:hidden flex items-center justify-center size-11 rounded-2xl transition-all border",
+            "bg-white/5 border-white/10 text-white hover:bg-white/10"
+          )}
+        >
+          <Menu size={20} />
         </button>
-        <span className="text-lg tracking-tighter gradient-text"
-          style={{ fontFamily: 'var(--font-display)' }}>
-          LockIn
-        </span>
+        <div className="hidden lg:block">
+           <h2 className="text-xs font-semibold uppercase tracking-widest text-white/30">{currentPath}</h2>
+        </div>
+        <div className="lg:hidden flex items-center gap-2.5">
+           <span className="text-xl font-black uppercase font-display text-white tracking-widest">
+             LI<span className="text-cyan-400">01</span>
+           </span>
+        </div>
       </div>
-      <div className="hidden lg:block">
-        <p className="text-xs uppercase tracking-widest font-bold mono-data" style={{ color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em' }}>
-          {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit' }).toUpperCase()}
-        </p>
-      </div>
-      <div className="relative">
-        <button onClick={() => setShowMenu(v => !v)} className="p-2 rounded-full transition-colors hover:bg-white/10" style={{ color: '#F8F9FA' }}>
-          <UserCircle2 size={20} />
-        </button>
-        {showMenu && (
-          <div className="absolute right-0 top-12 rounded-[20px] py-2 z-50 min-w-48 glow-cyan"
-            style={{ background: 'rgba(30,30,30,0.9)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,255,255,0.15)' }}>
-            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <p className="text-sm font-bold text-white" style={{ fontFamily: 'var(--font-header)' }}>{user?.displayName}</p>
-              <p className="text-[10px] mono-data" style={{ color: 'rgba(255,255,255,0.5)' }}>{user?.email}</p>
-            </div>
-            <button onClick={async () => { await signOutUser(); navigate('/login'); }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-white/5 font-bold"
-              style={{ color: C.errorC, fontFamily: 'var(--font-header)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em' }}>
-              <LogOut size={16} /> Sign Out
-            </button>
-          </div>
-        )}
+
+      <div className="flex items-center gap-6">
+        <div className="hidden sm:flex flex-col items-end">
+           <p className="text-[10px] font-medium uppercase tracking-wider text-white/40">
+             {new Date().toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short' })}
+           </p>
+           <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest mt-0.5">Synced</p>
+        </div>
+        <div className="size-11 rounded-full p-[1.5px] bg-white/10 group cursor-pointer hover:bg-cyan-500/30 transition-all border border-white/5">
+           <div className="size-full rounded-full bg-black flex items-center justify-center overflow-hidden">
+             {user?.photoURL ? (
+                <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
+             ) : (
+                <UserCircle2 size={20} className="text-white/40" />
+             )}
+           </div>
+        </div>
       </div>
     </header>
   );
 }
 
 function BottomNav() {
-  const BOTTOM_ITEMS = [
-    { path: '/',          icon: LayoutDashboard, label: 'Home' },
-    { path: '/workouts',  icon: Dumbbell,        label: 'Train' },
-    { path: '/nutrition', icon: Utensils,         label: 'Food' },
-    { path: '/habits',    icon: CalendarCheck,   label: 'Habits' },
-    { path: '/settings',  icon: Settings,        label: 'More' },
-  ];
+  const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 w-full z-50 lg:hidden flex justify-around items-center h-20 px-4"
-      style={{ background: 'rgba(18,18,18,0.85)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)',
-        borderTop: '1px solid rgba(255,255,255,0.08)', borderTopLeftRadius: '32px', borderTopRightRadius: '32px',
-        boxShadow: '0 -10px 40px rgba(0,0,0,0.5)' }}>
-      {BOTTOM_ITEMS.map((item) => (
-        <NavLink key={item.path} to={item.path} end={item.path === '/'}
-          className={({ isActive }) => `flex flex-col items-center justify-center transition-all duration-300 active:scale-95 px-3 py-2 rounded-[20px] ${isActive ? 'glow-cyan' : ''}`}
-          style={({ isActive }) => isActive
-            ? { color: '#00FFFF', background: 'rgba(0,255,255,0.1)' }
-            : { color: 'rgba(255,255,255,0.4)' }}>
-          {({ isActive }) => (
-            <>
-              <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} fill={isActive ? 'rgba(0,255,255,0.2)' : 'none'} />
-              <span className="text-[9px] uppercase font-bold mt-1"
-                style={{ fontFamily: 'var(--font-header)', letterSpacing: '0.05em' }}>{item.label}</span>
-            </>
-          )}
-        </NavLink>
-      ))}
+    <nav className="fixed bottom-0 w-full z-50 lg:hidden flex justify-around items-center h-20 px-4 pb-2">
+      <div className="absolute inset-0 bg-black border-t border-white/5" />
+      
+      {NAV_ITEMS.map((item) => {
+        const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+        
+        return (
+          <NavLink 
+            key={item.path} 
+            to={item.path}
+            className={cn(
+              "relative z-10 flex flex-col items-center justify-center w-16 h-16 rounded-[22px] transition-all duration-500 active:scale-90",
+              isActive ? "text-[#00FFFF]" : "text-white/30"
+            )}
+          >
+            <item.icon 
+              size={22} 
+              strokeWidth={isActive ? 2.5 : 2} 
+              className={cn("transition-all duration-300", isActive && "drop-shadow-[0_0_8px_rgba(0,255,255,0.6)]")}
+            />
+            <span className={cn(
+              "text-[9px] font-semibold mt-1 transition-all",
+              isActive ? "opacity-100" : "opacity-40"
+            )}>
+              {item.short}
+            </span>
+            {isActive && (
+              <div className="absolute inset-x-4 bottom-1 h-[2px] bg-white rounded-full shadow-[0_0_4px_rgba(255,255,255,0.4)]" />
+            )}
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }
@@ -178,14 +222,26 @@ export default function Layout() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen flex relative bg-[#121212]">
+    <div className="min-h-screen flex relative bg-black text-white selection:bg-white/10">
+      {/* Subtle Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20">
+         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/[0.03] to-transparent" />
+      </div>
+
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={user} />
-      <main className="flex-1 flex flex-col lg:ml-64 relative z-10 w-full min-w-0">
+      
+      <main className="flex-1 flex flex-col lg:ml-72 relative z-10 w-full min-w-0">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <div className="flex-1 overflow-auto px-4 md:px-6 lg:px-8 py-6 pb-28 lg:pb-8">
+        <div className="flex-1 overflow-auto px-6 md:px-10 py-10 pb-32 lg:pb-12 custom-scrollbar">
           <div className="max-w-5xl mx-auto w-full"><Outlet /></div>
+          
+          {/* Developed Footnote */}
+          <div className="mt-20 pt-8 border-t border-white/5 flex flex-col items-center opacity-30">
+             <p className="text-[10px] font-medium uppercase tracking-widest">Developed by Pratham Pingle</p>
+          </div>
         </div>
       </main>
+      
       <BottomNav />
     </div>
   );

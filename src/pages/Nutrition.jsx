@@ -1,227 +1,340 @@
 import React, { useState } from 'react';
-import { Plus, Coffee, UtensilsCrossed, Apple, Trash2, ChevronRight, ChevronLeft, CalendarDays, Copy } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Plus, Coffee, UtensilsCrossed, Apple, Trash2, 
+  ChevronRight, ChevronLeft, CalendarDays, Copy,
+  Zap, Flame, Target, PieChart, Activity, Clock, Download
+} from 'lucide-react';
 import { useMeals, useMealPlans, useDailyNutrition } from '../hooks/useNutrition';
 import { useProfile } from '../hooks/useProfile';
 import AddMealModal from '../components/AddMealModal';
-import GlassPanel, { EmptyState } from '../components/GlassPanel';
-import { C } from '../lib/theme';
+import { GlassCard } from '../components/ui/GlassCard';
+import { Button } from '../components/ui/Button';
+import { cn } from '../lib/utils';
+import { toast } from 'sonner';
 
-const MEAL_ICONS = { Breakfast: Coffee, Lunch: UtensilsCrossed, Dinner: UtensilsCrossed, Snack: Apple, Other: Apple };
+function exportCSV(headers, rows, filename) {
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+const MEAL_ICONS = { 
+  Breakfast: Coffee, 
+  Lunch: UtensilsCrossed, 
+  Dinner: UtensilsCrossed, 
+  Snack: Apple, 
+  Other: Activity 
+};
 
 export default function Nutrition() {
   const [activeTab, setActiveTab]     = useState('diary');
   const [mealModalOpen, setMealOpen]  = useState(false);
-  // #15 — date navigation
   const [selectedDate, setSelectedDate] = useState(new Date());
+  
   const dateStr = selectedDate.toISOString().split('T')[0];
   const isToday = dateStr === new Date().toISOString().split('T')[0];
 
   const { meals, logMeal, deleteMeal } = useMeals(selectedDate);
   const { nutrition }                  = useDailyNutrition(selectedDate);
-  const { profile }                    = useProfile();
+  const { profile, loading: profileLoading } = useProfile();
   const { plans }                      = useMealPlans();
 
   const totalCals   = Math.round(nutrition.calories || 0);
   const goalCals    = profile?.dailyCalorieGoal || 2200;
   const remaining   = Math.max(goalCals - totalCals, 0);
-  const ringPct     = Math.min(totalCals / goalCals, 1);
-  const R           = 80;
-  const circ        = 2 * Math.PI * R;
-  const ringOffset  = circ - ringPct * circ;
+  const progressPct = Math.min((totalCals / goalCals) * 100, 100);
 
-  // #41 — macro targets
   const proteinTarget = profile?.proteinTarget || 150;
   const carbsTarget   = profile?.carbsTarget || 250;
   const fatsTarget    = profile?.fatsTarget || 70;
 
   const MACROS = [
-    { key: 'protein', label: 'Protein', color: C.secondaryC, value: Math.round(nutrition.protein || 0), max: proteinTarget },
-    { key: 'carbs',   label: 'Carbs',   color: '#0ea5e9',    value: Math.round(nutrition.carbs || 0),   max: carbsTarget },
-    { key: 'fats',    label: 'Fats',    color: C.coralC,     value: Math.round(nutrition.fats || 0),    max: fatsTarget },
+    { key: 'protein', label: 'Protein', color: '#CCFF00', value: Math.round(nutrition.protein || 0), max: proteinTarget, icon: <Zap size={10} /> },
+    { key: 'carbs',   label: 'Carbs',   color: '#00FFFF',    value: Math.round(nutrition.carbs || 0),   max: carbsTarget,   icon: <PieChart size={10} /> },
+    { key: 'fats',    label: 'Fats',    color: '#FF3366',    value: Math.round(nutrition.fats || 0),    max: fatsTarget,    icon: <Flame size={10} /> },
   ];
 
   const prevDay = () => setSelectedDate(d => { const n = new Date(d); n.setDate(n.getDate() - 1); return n; });
   const nextDay = () => { if (!isToday) setSelectedDate(d => { const n = new Date(d); n.setDate(n.getDate() + 1); return n; }); };
 
-  return (
-    <div className="space-y-6 animate-fade-in pb-12" style={{ fontFamily: "'Inter', system-ui" }}>
+  if (profileLoading) return <div className="p-20 text-center opacity-30">Loading Nutrition Data...</div>;
 
-      {/* ── Header ── */}
-      <div className="flex items-start justify-between">
+  return (
+    <div className="space-y-8 animate-fade-in pb-20">
+
+      {/* Header Section */}
+      <div className="flex items-end justify-between">
         <div>
-          <p className="text-[11px] uppercase tracking-widest font-semibold mb-1" style={{ color: C.primaryC }}>DAILY VITALS</p>
-          <h1 className="text-3xl font-extrabold tracking-tight mt-0.5" style={{ fontFamily: "'Manrope', system-ui", color: C.onSurface }}>Nutrition Hub</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Nutrition</h1>
+          <p className="text-[10px] uppercase tracking-widest font-bold text-white/30 mt-1">Daily Intake Tracking</p>
         </div>
-        <button onClick={() => setMealOpen(true)}
-           className="size-12 rounded-2xl flex items-center justify-center transition-all shadow-[0_0_12px_rgba(0,255,255,0.15)] active:scale-95"
-           style={{ background: 'rgba(0,255,255,0.1)', color: '#00FFFF', border: '1px solid rgba(0,255,255,0.3)' }}>
-          <Plus size={22} strokeWidth={2.5} />
-        </button>
+        <div className="flex gap-4">
+          <Button variant="ghost" className="h-14 rounded-2xl border border-white/5 text-white/40 hover:text-white" 
+            onClick={() => {
+              const rows = meals.map(m => [m.name, m.mealType, m.calories, m.protein, m.carbs, m.fats]);
+              exportCSV(['Name', 'Type', 'Calories', 'Protein', 'Carbs', 'Fats'], rows, 'meal-data.csv');
+              toast.info("Exporting records...");
+            }}>
+            <Download size={16} className="mr-2" /> Export
+          </Button>
+          <Button 
+            onClick={() => setMealOpen(true)}
+            className="h-14 rounded-2xl bg-white text-black font-bold uppercase tracking-widest hover:bg-white/90"
+          >
+            <Plus size={20} className="mr-2" /> Log Meal
+          </Button>
+        </div>
       </div>
 
-      {/* ── Date Navigation (#15) ── */}
-      <div className="flex items-center justify-between">
-        <button onClick={prevDay} className="p-2 rounded-xl transition-all hover:bg-black/5" style={{ color: C.onSurface, background: 'rgba(0,0,0,0.04)' }}>
+      {/* Date Navigation */}
+      <div className="flex items-center justify-between bg-black/40 border border-white/5 p-2 rounded-2xl w-full sm:w-fit sm:mx-auto">
+        <button onClick={prevDay} className="p-3 rounded-xl transition-all hover:bg-white/5 text-white/40 hover:text-white">
           <ChevronLeft size={20} />
         </button>
-        <div className="text-center">
-          <p className="text-sm font-bold" style={{ fontFamily: "'Manrope', system-ui", color: C.onSurface }}>
-            {isToday ? 'Today' : selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+        <div className="px-8 text-center min-w-[140px]">
+          <p className="text-sm font-bold uppercase tracking-widest text-white">
+            {isToday ? 'TODAY' : selectedDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
           </p>
-          <p className="text-[10px] mt-0.5" style={{ color: C.outline }}>{dateStr}</p>
+          <p className="text-[9px] font-bold text-white/20 mt-0.5">{dateStr}</p>
         </div>
         <button onClick={nextDay} disabled={isToday}
-          className="p-2 rounded-xl transition-all hover:bg-black/5 disabled:opacity-30 disabled:hover:bg-black/5"
-          style={{ color: C.onSurface, background: 'rgba(0,0,0,0.04)' }}>
+          className="p-3 rounded-xl transition-all hover:bg-white/5 text-white/40 hover:text-white disabled:opacity-5"
+        >
           <ChevronRight size={20} />
         </button>
       </div>
 
-      {/* ── Energy Ring + Macros with targets (#4/#23 fix + #41) ── */}
-      <GlassPanel className="p-8 flex flex-col items-center">
-        <div className="relative flex items-center justify-center" style={{ width: 200, height: 200 }}>
-          <svg width="200" height="200" viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r={R} fill="transparent" stroke="rgba(0,0,0,0.04)" strokeWidth="10" />
-            <circle cx="100" cy="100" r={R} fill="transparent"
-              stroke={totalCals === 0 ? 'rgba(0,0,0,0.06)' : C.tertiaryC}
-              strokeWidth="14" strokeLinecap="round"
-              strokeDasharray={circ} strokeDashoffset={ringOffset}
-              className="progress-ring-circle"
-              style={{ filter: totalCals > 0 ? 'drop-shadow(0 0 14px rgba(234, 179, 8, 0.45))' : 'none' }} />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="font-black text-4xl tracking-tighter" style={{ fontFamily: "'Manrope', system-ui", color: C.onSurface }}>
-              {remaining.toLocaleString()}
-            </span>
-            <span className="text-[10px] uppercase tracking-[0.18em] font-bold mt-1" style={{ color: C.outline }}>KCAL LEFT</span>
-          </div>
+      {/* Gauges */}
+      <GlassCard className="p-10 flex flex-col items-center relative overflow-hidden group">
+        <div className="relative flex items-center justify-center">
+            <svg width="240" height="240" viewBox="0 0 240 240" className="transform -rotate-90">
+              <circle cx="120" cy="120" r="100" fill="transparent" stroke="rgba(255,255,255,0.02)" strokeWidth="12" />
+              <motion.circle 
+                cx="120" cy="120" r="100" fill="transparent"
+                stroke={totalCals > goalCals ? "#EF4444" : "#FFFFFF"}
+                strokeWidth="14" strokeLinecap="round"
+                initial={{ strokeDasharray: 2 * Math.PI * 100, strokeDashoffset: 2 * Math.PI * 100 }}
+                animate={{ strokeDashoffset: 2 * Math.PI * 100 * (1 - progressPct / 100) }}
+                transition={{ duration: 2, ease: "circOut" }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+              <span className="text-6xl font-bold tracking-tighter text-white leading-none">
+                {remaining.toLocaleString()}
+              </span>
+              <span className="text-[10px] uppercase tracking-widest font-bold mt-2 text-white/30">KCAL REMAINING</span>
+              <div className="flex items-center gap-1.5 mt-4 px-3 py-1 bg-white/5 rounded-full border border-white/5">
+                 <span className="text-[9px] font-bold text-white/50 uppercase tracking-widest">{totalCals} CALORIES IN</span>
+              </div>
+            </div>
         </div>
 
-        {/* Macro badges with progress bars (#41) */}
-        <div className="grid grid-cols-3 gap-6 mt-8 w-full border-t pt-6" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
+        <div className="grid grid-cols-3 gap-8 mt-12 w-full border-t border-white/5 pt-10">
           {MACROS.map(m => {
-            const pct = Math.min(m.value / m.max, 1);
+            const pct = Math.min((m.value / m.max) * 100, 100);
             return (
               <div key={m.key} className="text-center">
-                <p className="text-xl font-black" style={{ fontFamily: "'Manrope', system-ui", color: m.color }}>
-                  {m.value}g
-                </p>
-                <p className="text-[10px] uppercase tracking-widest font-semibold mb-2" style={{ color: C.outline }}>{m.label}</p>
-                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.05)' }}>
-                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct * 100}%`, background: m.color }} />
+                <div className="flex items-center justify-center gap-1.5 mb-2 text-white/20">
+                  {m.icon}
+                  <span className="text-[10px] uppercase font-bold tracking-widest">{m.label}</span>
                 </div>
-                <p className="text-[9px] mt-1.5 font-bold" style={{ color: C.outline }}>{m.value}/{m.max}g</p>
+                <p className="text-2xl font-bold tracking-tight" style={{ color: m.color }}>
+                  {m.value}<span className="text-xs ml-0.5 opacity-40">g</span>
+                </p>
+                <div className="h-1 w-full bg-white/5 rounded-full mt-3 overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${pct}%` }}
+                    className="h-full rounded-full" 
+                    style={{ background: m.color }} 
+                  />
+                </div>
+                <p className="text-[9px] mt-2 font-bold text-white/10 uppercase">Goal: {m.max}g</p>
               </div>
             );
           })}
         </div>
-      </GlassPanel>
+      </GlassCard>
 
-      {/* ── Tabs ── */}
-      <div className="flex" style={{ borderBottom: `1px solid rgba(0,0,0,0.06)` }}>
-        {['diary', 'plans'].map(tab => (
-          <button key={tab} onClick={() => setActiveTab(tab)}
-            className="px-5 py-3 text-sm font-bold capitalize transition-colors"
-            style={{
-              borderBottom: activeTab === tab ? `2px solid ${C.primaryC}` : '2px solid transparent',
-              color: activeTab === tab ? C.primaryC : C.outline,
-              fontFamily: "'Manrope', system-ui", marginBottom: -1,
-            }}>
-            {tab === 'diary' ? 'Meal Journal' : 'Past Days'}
+      {/* Tabs */}
+      <div className="flex bg-black/40 p-1.5 rounded-2xl border border-white/5 w-fit">
+        {[
+          { id: 'diary', label: 'Meal Diary', icon: <UtensilsCrossed size={14} /> }, 
+          { id: 'plans', label: 'History', icon: <CalendarDays size={14} /> }
+        ].map(tab => (
+          <button 
+            key={tab.id} 
+            onClick={() => setActiveTab(tab.id)}
+            className={cn(
+              "px-6 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all flex items-center gap-2",
+              activeTab === tab.id 
+                ? "bg-white text-black shadow-lg" 
+                : "text-white/30 hover:text-white/60 hover:bg-white/5"
+            )}
+          >
+            {tab.icon} {tab.label}
           </button>
         ))}
       </div>
 
-      {/* ── Meal Journal ── */}
-      {activeTab === 'diary' && (
-        <div className="space-y-4 pt-2 stagger-children">
-          {meals.length === 0 ? (
-            <EmptyState icon={UtensilsCrossed} title="No meals logged"
-              subtitle={isToday ? 'Tap the + button to log your first meal.' : 'No meals were logged on this day.'}
-              action={isToday ? '+ Log Meal' : undefined}
-              onAction={isToday ? () => setMealOpen(true) : undefined} />
-          ) : (
-            meals.map(meal => {
-              const Icon = MEAL_ICONS[meal.mealType] || Apple;
-              // #5 fix — use ISO string directly, not .toDate()
-              const time = meal.created_at
-                ? new Date(meal.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                : '';
-              return (
-                <div key={meal.id}
-                  className="flex items-center justify-between p-4 rounded-3xl group transition-all glass-panel hover:-translate-y-0.5 cursor-pointer"
-                  style={{ border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
-                  <div className="flex items-center gap-4">
-                    <div className="size-12 rounded-2xl flex items-center justify-center bg-[#CCFF00]/10 text-[#CCFF00] border border-[#CCFF00]/20 shadow-[0_0_12px_rgba(204,255,0,0.1)]">
-                      <Icon size={22} />
-                    </div>
-                    <div>
-                      <p className="font-bold text-base text-white tracking-wide">{meal.name}</p>
-                      <p className="text-[10px] mt-1 text-white/40 mono-data uppercase tracking-wider">{meal.mealType}{time ? ` • ${time}` : ''}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right mr-3">
-                      <p className="font-black text-2xl leading-none font-display text-white">{meal.calories}</p>
-                      <p className="text-[10px] uppercase tracking-widest font-bold text-[#CCFF00] mt-1.5">{meal.protein}G PRO</p>
-                    </div>
-                    <button onClick={() => deleteMeal(meal.id)}
-                      className="p-3 rounded-xl transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-transparent hover:border-red-500/30 active:scale-95">
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {activeTab === 'diary' && (
+          <motion.div 
+            key="diary"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="space-y-4 pt-2"
+          >
+            {meals.length === 0 ? (
+              <div className="p-20 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-[40px] bg-white/[0.01]">
+                <UtensilsCrossed size={48} className="text-white/10 mb-6" />
+                <p className="text-sm text-white/30 font-medium uppercase tracking-widest text-center mb-8">No meals logged today</p>
+                <Button onClick={() => setMealOpen(true)} className="h-16 px-10 rounded-2xl bg-white text-black font-bold uppercase tracking-widest hover:bg-white/90">
+                  <Plus size={20} className="mr-2" /> Log First Meal
+                </Button>
+              </div>
+            ) : (
+              meals.map(meal => {
+                const Icon = MEAL_ICONS[meal.mealType] || Apple;
+                const time = meal.created_at
+                  ? new Date(meal.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  : '';
+                
+                return (
+                  <motion.div
+                    layout
+                    key={meal.id}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="group"
+                  >
+                    <GlassCard className="p-5 flex items-center justify-between cursor-default border-white/5 hover:bg-white/[0.04] transition-all">
+                      <div className="flex items-center gap-5">
+                        <div className="size-14 rounded-2xl flex items-center justify-center bg-white/5 text-white/40 border border-white/10 group-hover:bg-white/10 transition-all">
+                          <Icon size={24} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-xl text-white uppercase tracking-tight mb-1">{meal.name}</p>
+                          <div className="flex items-center gap-3">
+                             <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">{meal.mealType}</span>
+                             {time && <><span className="size-1 rounded-full bg-white/10" /><span className="text-[10px] font-bold text-white/20 uppercase tracking-widest flex items-center gap-1.5"><Clock size={10} /> {time}</span></>}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-6">
+                        <div className="hidden sm:flex gap-4 border-r border-white/5 pr-6 mr-2">
+                           <div className="text-right">
+                              <p className="text-[9px] font-bold text-lime-400 uppercase tracking-widest">P</p>
+                              <p className="text-sm font-bold text-white/60">{meal.protein}g</p>
+                           </div>
+                           <div className="text-right">
+                              <p className="text-[9px] font-bold text-cyan-400 uppercase tracking-widest">C</p>
+                              <p className="text-sm font-bold text-white/60">{meal.carbs}g</p>
+                           </div>
+                           <div className="text-right">
+                              <p className="text-[9px] font-bold text-rose-500 uppercase tracking-widest">F</p>
+                              <p className="text-sm font-bold text-white/60">{meal.fats}g</p>
+                           </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-3xl text-white leading-none tracking-tighter">{meal.calories}</p>
+                          <p className="text-[9px] uppercase tracking-widest font-bold text-white/30 mt-1">CALORIES</p>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            if(confirm(`Delete meal: ${meal.name}?`)) {
+                              deleteMeal(meal.id);
+                              toast.info("Meal deleted");
+                            }
+                          }}
+                          className="p-3 rounded-xl transition-all opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-400 hover:bg-red-500/10"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </GlassCard>
+                  </motion.div>
+                );
+              })
+            )}
+          </motion.div>
+        )}
 
-      {/* ── Past Days / Meal Plans (#10) ── */}
-      {activeTab === 'plans' && (
-        <div className="space-y-4 pt-2">
-          {plans.length === 0 ? (
-            <EmptyState icon={CalendarDays} title="No Past Meal Days"
-              subtitle="Log meals for at least 2 entries on a day to see it here." />
-          ) : (
-            plans.map(plan => (
-              <GlassPanel key={plan.date} className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="font-bold text-sm" style={{ fontFamily: "'Manrope', system-ui", color: C.onSurface }}>{plan.date}</p>
-                    <p className="text-xs mt-0.5 font-medium" style={{ color: C.outline }}>{plan.meals.length} meals • {plan.totals.calories} kcal</p>
-                  </div>
-                  <button onClick={() => {
-                    // Copy all meals to today
-                    plan.meals.forEach(m => logMeal({
-                      name: m.name, calories: m.calories, protein: m.protein, carbs: m.carbs, fats: m.fats,
-                      mealType: m.meal_type,
-                    }));
-                  }}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border hover:bg-black/5"
-                    style={{ background: 'rgba(139,92,246,0.1)', color: C.primaryC, borderColor: 'rgba(139,92,246,0.15)' }}>
-                    <Copy size={14} /> Repeat Day
-                  </button>
-                </div>
-                <div className="flex gap-4">
-                  {[
-                    { label: 'Pro', val: plan.totals.protein, color: C.secondaryC },
-                    { label: 'Carbs', val: plan.totals.carbs, color: '#0ea5e9' },
-                    { label: 'Fats', val: plan.totals.fats, color: C.coralC },
-                  ].map(m => (
-                    <div key={m.label} className="flex flex-col items-center px-3 py-2 rounded-xl flex-1 border font-bold" style={{ background: 'rgba(0,0,0,0.02)', borderColor: 'rgba(0,0,0,0.04)', color: m.color }}>
-                       <span className="text-[10px] uppercase tracking-wider mb-0.5">{m.label}</span>
-                       <span className="text-sm">{m.val}g</span>
+        {activeTab === 'plans' && (
+          <motion.div 
+            key="plans"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="space-y-4 pt-2"
+          >
+            {plans.length === 0 ? (
+              <div className="p-20 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-[40px] bg-white/[0.01]">
+                <CalendarDays size={48} className="text-white/10 mb-6" />
+                <p className="text-sm text-white/30 font-medium uppercase tracking-widest text-center">No history found</p>
+              </div>
+            ) : (
+              plans.map(plan => (
+                <GlassCard key={plan.date} className="p-6 group">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-5">
+                       <div className="size-14 rounded-2xl flex items-center justify-center bg-white/5 border border-white/5 text-white/40">
+                          <p className="text-lg font-bold leading-none">{plan.date.split('-')[2]}</p>
+                       </div>
+                       <div>
+                         <p className="font-bold text-sm uppercase tracking-widest text-white">{plan.date}</p>
+                         <p className="text-xs mt-1 text-white/40 font-bold tracking-tight">{plan.meals.length} MEALS • {plan.totals.calories} KCAL</p>
+                       </div>
                     </div>
-                  ))}
-                </div>
-              </GlassPanel>
-            ))
-          )}
-        </div>
-      )}
+                    
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                      <div className="flex gap-2 flex-1 sm:flex-none">
+                        {[
+                          { label: 'P', val: plan.totals.protein, color: '#CCFF00' },
+                          { label: 'C', val: plan.totals.carbs, color: '#00FFFF' },
+                          { label: 'F', val: plan.totals.fats, color: '#FF3366' },
+                        ].map(m => (
+                          <div key={m.label} className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-center min-w-[60px]">
+                             <p className="text-[8px] font-black uppercase mb-0.5" style={{ color: m.color }}>{m.label}</p>
+                             <p className="text-xs font-bold text-white">{m.val}g</p>
+                          </div>
+                        ))}
+                      </div>
+                      <Button 
+                        variant="secondary" 
+                        size="icon" 
+                        onClick={() => {
+                          plan.meals.forEach(m => logMeal({
+                            name: m.name, calories: m.calories, protein: m.protein, carbs: m.carbs, fats: m.fats,
+                            mealType: m.meal_type,
+                          }));
+                          toast.success("History copied to today");
+                        }}
+                        className="size-11 rounded-xl transition-all"
+                      >
+                        <Copy size={18} />
+                      </Button>
+                    </div>
+                  </div>
+                </GlassCard>
+              ))
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <AddMealModal isOpen={mealModalOpen} onClose={() => setMealOpen(false)} onSubmit={logMeal} />
+      <AddMealModal 
+        isOpen={mealModalOpen} 
+        onClose={() => setMealOpen(false)} 
+        onSubmit={(data) => {
+          logMeal(data);
+          toast.success(`Meal logged: ${data.name}`);
+        }} 
+      />
     </div>
   );
 }

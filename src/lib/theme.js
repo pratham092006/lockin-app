@@ -1,40 +1,54 @@
-// ─── AuraFit Premium Dark Mode Design System ──────────────────────────────────
-// Note: We are phasing out these JS constants in favor of Tailwind CSS variables.
-// They are retained here to prevent the UI from breaking during the migration.
-export const C = {
-  bg:          '#121212',
-  surfaceLowest:'rgba(255,255,255,0.02)',
-  surfaceLow:  'rgba(255,255,255,0.03)',
-  surfaceCont: 'rgba(255,255,255,0.05)',
-  surfaceHigh: 'rgba(255,255,255,0.08)',
-  surfaceHighest:'rgba(255,255,255,0.1)',
+/**
+ * LockIn Design System - Core Tokens
+ * 
+ * Clean, Minimalist Dark Mode:
+ * - Style: Solid / Subtle Borders
+ * - Primary: White / High Contrast
+ * - Background: Deep Charcoal (#0c0c0c)
+ */
+
+export const THEME = {
+  colors: {
+    background: '#0c0c0c',
+    surface: '#141414',
+    border: 'rgba(255, 255, 255, 0.05)',
+    
+    // Core Brand
+    primary: '#FFFFFF',
+    secondary: '#CCFF00', // Electric Lime (Subtle accent)
+    
+    // Accents
+    purple: '#A855F7',
+    pink: '#EC4899',
+    
+    // Status
+    success: '#10B981',
+    error: '#EF4444',
+    warning: '#F59E0B',
+    
+    // Text
+    textPrimary: '#FFFFFF',
+    textSecondary: 'rgba(255, 255, 255, 0.6)',
+    textMuted: 'rgba(255, 255, 255, 0.3)',
+  },
   
-  onSurface:   '#F8F9FA',
-  onSurfaceV:  'rgba(255,255,255,0.6)', // deeper gray for contrast
-  outline:     'rgba(255,255,255,0.1)',
-  outlineV:    'rgba(255,255,255,0.05)',
+  gradients: {
+    dark: 'linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%)',
+    habit: 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
+  },
   
-  // Neon Cyan
-  primary:     '#00FFFF',
-  primaryC:    '#00FFFF', 
+  typography: {
+    display: "'Manrope', system-ui, sans-serif",
+    header: "'Manrope', system-ui, sans-serif",
+    body: "'Inter', system-ui, sans-serif",
+    mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+  },
   
-  // Electric Lime
-  secondary:   '#CCFF00',
-  secondaryC:  '#CCFF00',
-  
-  // Purple/Pink Heatmap vibe
-  tertiary:    '#A855F7',
-  tertiaryC:   '#A855F7',
-  
-  // Action/Error
-  coral:       '#EC4899', // Pinkish red for errors
-  coralC:      '#EC4899',
-  
-  error:       '#EF4444',
-  errorC:      '#EF4444',
+  effects: {
+    subtleShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
+    borderGlow: '0 0 0 1px rgba(255, 255, 255, 0.05)',
+  }
 };
 
-export const glassBorder = {
-  borderTop:  '1px solid rgba(255,255,255,0.08)',
-  borderLeft: '1px solid rgba(255,255,255,0.08)',
-};
+// Simplified common class utility
+export const glassClasses = "bg-[#141414] border border-white/5 rounded-[24px] shadow-2xl overflow-hidden";

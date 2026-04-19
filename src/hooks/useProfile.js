@@ -78,10 +78,20 @@ export function useWaterTracking() {
       }
 
       const persistedNext = (existing?.cups || 0) + cups;
-      const { error: writeError } = await supabase.from('water_logs').upsert(
-        { user_id: user.uid, date: today, cups: persistedNext },
-        { onConflict: 'user_id,date' }
-      );
+      const payload = { user_id: user.uid, date: today, cups: persistedNext };
+      let writeError;
+
+      if (existing) {
+        const { error } = await supabase.from('water_logs')
+          .update({ cups: persistedNext })
+          .eq('user_id', user.uid)
+          .eq('date', today);
+        writeError = error;
+      } else {
+        const { error } = await supabase.from('water_logs')
+          .insert(payload);
+        writeError = error;
+      }
 
       if (writeError) {
         console.error('Water log write error', writeError);
@@ -130,11 +140,25 @@ export function useWeightTracking() {
     if (!user?.uid) return;
     const today = new Date().toISOString().split('T')[0];
     setProfile(prev => ({ ...prev, weight }));
-    const { error } = await supabase.from('weight_logs').upsert(
-      { user_id: user.uid, date: today, weight },
-      { onConflict: 'user_id,date' }
-    );
-    if (error) console.error('Weight log error', error);
+    const { data: existing } = await supabase.from('weight_logs')
+      .select('id')
+      .eq('user_id', user.uid)
+      .eq('date', today)
+      .single();
+
+    let writeError;
+    if (existing) {
+      const { error } = await supabase.from('weight_logs')
+        .update({ weight })
+        .eq('user_id', user.uid)
+        .eq('date', today);
+      writeError = error;
+    } else {
+      const { error } = await supabase.from('weight_logs')
+        .insert({ user_id: user.uid, date: today, weight });
+      writeError = error;
+    }
+    if (writeError) console.error('Weight log error', writeError);
   };
 
   return {

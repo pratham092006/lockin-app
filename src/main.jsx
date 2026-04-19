@@ -5,6 +5,7 @@ import './index.css';
 import App from './App.jsx';
 import { AuthProvider } from './hooks/useAuth.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
+import { Toaster } from './components/ui/Toaster';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +25,7 @@ createRoot(document.getElementById('root')).render(
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+          <Toaster />
           <App />
         </AuthProvider>
       </QueryClientProvider>
