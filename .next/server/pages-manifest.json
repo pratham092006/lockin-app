@@ -1,13 +1,13 @@
 {
-  "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
+  "/_app": "pages/_app.js",
   "/Dashboard": "pages/Dashboard.js",
   "/Habits": "pages/Habits.js",
-  "/NotFound": "pages/NotFound.js",
   "/Login": "pages/Login.js",
-  "/Onboarding": "pages/Onboarding.js",
-  "/Settings": "pages/Settings.js",
+  "/NotFound": "pages/NotFound.js",
   "/Nutrition": "pages/Nutrition.js",
+  "/Onboarding": "pages/Onboarding.js",
   "/Workouts": "pages/Workouts.js",
+  "/Settings": "pages/Settings.js",
   "/_document": "pages/_document.js"
 }
