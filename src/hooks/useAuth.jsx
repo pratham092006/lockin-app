@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 const AuthContext = createContext({
   user: null, session: null, profile: null,
@@ -10,6 +10,7 @@ const AuthContext = createContext({
 });
 
 async function fetchProfile(userId) {
+  if (!supabase) return null;
   const { data, error } = await supabase.from('profiles').select('*')
     .eq('id', userId).single();
   if (error && error.code !== 'PGRST116') throw error;
@@ -18,6 +19,7 @@ async function fetchProfile(userId) {
 
 // #37 — fallback: if profile is null (trigger didn't fire), create one
 async function ensureProfile(userId, email) {
+  if (!supabase) return null;
   let profile = await fetchProfile(userId);
   if (!profile) {
     const { error } = await supabase.from('profiles').upsert({
@@ -27,6 +29,22 @@ async function ensureProfile(userId, email) {
     if (!error) profile = await fetchProfile(userId);
   }
   return profile;
+}
+
+function withTimeout(promise, timeoutMs, fallbackValue) {
+  return Promise.race([
+    promise,
+    new Promise((resolve) => {
+      setTimeout(() => resolve(fallbackValue), timeoutMs);
+    }),
+  ]);
+}
+
+function requireSupabase() {
+  if (!supabase) {
+    throw new Error('Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel.');
+  }
+  return supabase;
 }
 
 function normaliseProfile(raw) {
@@ -60,10 +78,24 @@ export function AuthProvider({ children }) {
 
   // ── Load auth session ────────────────────────────────────────────────────
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    if (!isSupabaseConfigured || !supabase) {
+      setSession(null);
+      setRawProfile(null);
       setAuthLoading(false);
-    });
+      return;
+    }
+
+    withTimeout(supabase.auth.getSession(), 7000, { data: { session: null } })
+      .then((result) => {
+        setSession(result?.data?.session || null);
+      })
+      .catch(() => {
+        setSession(null);
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user?.id !== lastUserIdRef.current) {
         setRawProfile(undefined);
@@ -81,6 +113,7 @@ export function AuthProvider({ children }) {
 
     if (!userId) {
       lastUserIdRef.current = null;
+      setRawProfile(null);
       return;
     }
     if (lastUserIdRef.current === userId) return;
@@ -88,11 +121,16 @@ export function AuthProvider({ children }) {
 
     (async () => {
       try {
-        const profile = await ensureProfile(userId, userEmail); // #37
+        const profile = await withTimeout(ensureProfile(userId, userEmail), 7000, null); // #37
         // Fetch today's water in parallel
         const today = new Date().toISOString().split('T')[0];
-        const { data: waterData } = await supabase.from('water_logs')
-          .select('cups').eq('user_id', userId).eq('date', today).single();
+        const waterResult = await withTimeout(
+          supabase.from('water_logs')
+            .select('cups').eq('user_id', userId).eq('date', today).single(),
+          5000,
+          { data: null }
+        );
+        const waterData = waterResult?.data ?? null;
         if (profile) profile.today_water = waterData?.cups || 0;
         setRawProfile(profile);
       } catch { setRawProfile(null); }
@@ -101,7 +139,8 @@ export function AuthProvider({ children }) {
 
   // ── Auth actions ─────────────────────────────────────────────────────────
   const signUp = async ({ email, password, name }) => {
-    const { data, error } = await supabase.auth.signUp({
+    const client = requireSupabase();
+    const { data, error } = await client.auth.signUp({
       email, password, options: { data: { full_name: name } },
     });
     if (error) throw error;
@@ -109,13 +148,15 @@ export function AuthProvider({ children }) {
   };
 
   const signIn = async ({ email, password }) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const client = requireSupabase();
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
   };
 
   const signOutUser = async () => {
-    const { error } = await supabase.auth.signOut();
+    const client = requireSupabase();
+    const { error } = await client.auth.signOut();
     if (error) throw error;
     setRawProfile(null);
     lastUserIdRef.current = null;
@@ -123,7 +164,8 @@ export function AuthProvider({ children }) {
 
   // #13 — Password reset
   const resetPassword = async (email) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const client = requireSupabase();
+    const { error } = await client.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin + '/login',
     });
     if (error) throw error;
