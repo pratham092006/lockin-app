@@ -1,0 +1,13 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/Dashboard": "pages/Dashboard.js",
+  "/Habits": "pages/Habits.js",
+  "/NotFound": "pages/NotFound.js",
+  "/Login": "pages/Login.js",
+  "/Onboarding": "pages/Onboarding.js",
+  "/Settings": "pages/Settings.js",
+  "/Nutrition": "pages/Nutrition.js",
+  "/Workouts": "pages/Workouts.js",
+  "/_document": "pages/_document.js"
+}
