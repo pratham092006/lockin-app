@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { 
@@ -13,7 +15,7 @@ import { cn } from '../lib/utils';
 import { toast } from 'sonner';
 
 export default function Login() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user, loading, signIn, signUp, resetPassword } = useAuth();
 
   const [tab,      setTab]      = useState('signin'); // 'signin' | 'signup'
@@ -24,8 +26,8 @@ export default function Login() {
   const [busy,     setBusy]     = useState(false);
 
   useEffect(() => {
-    if (!loading && user) navigate('/');
-  }, [user, loading, navigate]);
+    if (!loading && user) router.push('/dashboard');
+  }, [user, loading, router]);
 
   const handle = async (e) => {
     e.preventDefault();
@@ -38,7 +40,7 @@ export default function Login() {
       } else {
         await signIn({ email, password });
         toast.success('Signed in successfully.');
-        navigate('/');
+        router.push('/dashboard');
       }
     } catch (err) {
       toast.error(err?.message || 'Login failed. Please check your credentials.');

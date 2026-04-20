@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useProfile } from '../hooks/useProfile';
 import { useAuth } from '../hooks/useAuth.jsx';
@@ -16,7 +18,7 @@ import { cn } from '../lib/utils';
 import { toast } from 'sonner';
 
 export default function Onboarding() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { setProfile } = useAuth();
   const { updateProfile } = useProfile();
 
@@ -82,7 +84,7 @@ export default function Onboarding() {
       });
       setProfile({ onboarding_done: true });
       toast.success("NEURAL CALIBRATION COMPLETE. WELCOME OPERATIVE.");
-      navigate('/', { replace: true });
+      router.replace('/dashboard');
     } catch (err) {
       toast.error("SYNCHRONIZATION FAILED: RE-ATTEMPTING...");
     } finally {

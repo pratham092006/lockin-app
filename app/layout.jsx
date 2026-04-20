@@ -1,5 +1,7 @@
 import { Sora, Nunito_Sans } from 'next/font/google';
 import './globals.css';
+import '../src/index.css';
+import Providers from './providers.jsx';
 
 const sora = Sora({
   subsets: ['latin'],
@@ -21,7 +23,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${sora.variable} ${nunito.variable}`}>{children}</body>
+      <body className={`${sora.variable} ${nunito.variable}`}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

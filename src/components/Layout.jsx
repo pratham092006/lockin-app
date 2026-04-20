@@ -1,5 +1,8 @@
+"use client";
+
 import React, { useState } from 'react';
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Dumbbell, Utensils, CalendarCheck,
@@ -9,17 +12,19 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import { cn } from '../lib/utils';
 
 const NAV_ITEMS = [
-  { path: '/',          icon: LayoutDashboard, label: 'Dashboard', short: 'Dash' },
+  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', short: 'Dash' },
   { path: '/workouts',  icon: Dumbbell,        label: 'Workouts',  short: 'Gym' },
   { path: '/nutrition', icon: Utensils,        label: 'Nutrition', short: 'Meal' },
   { path: '/habits',    icon: CalendarCheck,   label: 'Habits',    short: 'Habits' },
   { path: '/settings',  icon: Settings,        label: 'Settings',  short: 'Settings' },
 ];
 
-function Sidebar({ open, onClose, user }) {
+function isActivePath(pathname, itemPath) {
+  return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
+}
+
+function Sidebar({ open, onClose, user, pathname, router }) {
   const { signOutUser } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
 
   return (
     <>
@@ -61,12 +66,12 @@ function Sidebar({ open, onClose, user }) {
         {/* Navigation */}
         <nav className="flex-1 py-10 px-4 space-y-2.5 overflow-y-auto relative z-10 custom-scrollbar">
           {NAV_ITEMS.map((item) => {
-            const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+            const isActive = isActivePath(pathname, item.path);
             
             return (
-              <NavLink 
+              <Link
                 key={item.path} 
-                to={item.path} 
+                href={item.path}
                 onClick={onClose}
                 className={cn(
                   "group flex items-center justify-between px-5 h-12 rounded-xl text-sm font-medium transition-all duration-300",
@@ -88,7 +93,7 @@ function Sidebar({ open, onClose, user }) {
                 {isActive && (
                   <div className="size-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
                 )}
-              </NavLink>
+              </Link>
             );
           })}
         </nav>
@@ -113,7 +118,7 @@ function Sidebar({ open, onClose, user }) {
 
           <div className="grid grid-cols-1 gap-2 mt-4 px-1">
              <button 
-               onClick={async () => { await signOutUser(); navigate('/login'); }}
+               onClick={async () => { await signOutUser(); router.push('/login'); }}
                className="w-full flex items-center justify-center gap-2 h-10 rounded-lg text-[10px] font-bold uppercase tracking-widest text-red-500/70 hover:text-white hover:bg-red-500 transition-all active:scale-95"
              >
                <LogOut size={14} /> SIGN OUT
@@ -129,10 +134,9 @@ function Sidebar({ open, onClose, user }) {
   );
 }
 
-function Header({ onMenuClick }) {
+function Header({ onMenuClick, pathname }) {
   const { user } = useAuth();
-  const location = useLocation();
-  const currentPath = NAV_ITEMS.find(i => i.path === location.pathname)?.label || 'DASHBOARD';
+  const currentPath = NAV_ITEMS.find(i => isActivePath(pathname, i.path))?.label || 'DASHBOARD';
 
   return (
     <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-6 md:px-10 bg-black border-b border-white/5">
@@ -178,19 +182,19 @@ function Header({ onMenuClick }) {
 }
 
 function BottomNav() {
-  const location = useLocation();
+  const pathname = usePathname();
 
   return (
     <nav className="fixed bottom-0 w-full z-50 lg:hidden flex justify-around items-center h-20 px-4 pb-2">
       <div className="absolute inset-0 bg-black border-t border-white/5" />
       
       {NAV_ITEMS.map((item) => {
-        const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+        const isActive = isActivePath(pathname, item.path);
         
         return (
-          <NavLink 
+          <Link
             key={item.path} 
-            to={item.path}
+            href={item.path}
             className={cn(
               "relative z-10 flex flex-col items-center justify-center w-16 h-16 rounded-[22px] transition-all duration-500 active:scale-90",
               isActive ? "text-[#00FFFF]" : "text-white/30"
@@ -210,16 +214,18 @@ function BottomNav() {
             {isActive && (
               <div className="absolute inset-x-4 bottom-1 h-[2px] bg-white rounded-full shadow-[0_0_4px_rgba(255,255,255,0.4)]" />
             )}
-          </NavLink>
+          </Link>
         );
       })}
     </nav>
   );
 }
 
-export default function Layout() {
+export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen flex relative bg-black text-white selection:bg-white/10">
@@ -228,12 +234,18 @@ export default function Layout() {
          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/[0.03] to-transparent" />
       </div>
 
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={user} />
+      <Sidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        user={user}
+        pathname={pathname}
+        router={router}
+      />
       
       <main className="flex-1 flex flex-col lg:ml-72 relative z-10 w-full min-w-0">
-        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <Header onMenuClick={() => setSidebarOpen(true)} pathname={pathname} />
         <div className="flex-1 overflow-auto px-6 md:px-10 py-10 pb-32 lg:pb-12 custom-scrollbar">
-          <div className="max-w-5xl mx-auto w-full"><Outlet /></div>
+          <div className="max-w-5xl mx-auto w-full">{children}</div>
           
           {/* Developed Footnote */}
           <div className="mt-20 pt-8 border-t border-white/5 flex flex-col items-center opacity-30">
