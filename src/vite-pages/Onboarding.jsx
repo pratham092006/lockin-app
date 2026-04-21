@@ -85,7 +85,7 @@ export default function Onboarding() {
       setProfile({ onboarding_done: true });
       toast.success("NEURAL CALIBRATION COMPLETE. WELCOME OPERATIVE.");
       router.replace('/dashboard');
-    } catch (err) {
+    } catch {
       toast.error("SYNCHRONIZATION FAILED: RE-ATTEMPTING...");
     } finally {
       setSaving(false);

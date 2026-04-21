@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Modal from './Modal';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
-import { cn } from '../lib/utils';
 import { Plus, Trash2, Dumbbell, ClipboardList, Target } from 'lucide-react';
 
 export default function AddWorkoutTemplateModal({ isOpen, onClose, onSubmit }) {

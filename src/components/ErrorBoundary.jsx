@@ -12,8 +12,8 @@ export default class ErrorBoundary extends React.Component {
     return { hasError: true };
   }
 
-  componentDidCatch(error, info) {
-    console.error('System Error:', error, info);
+  componentDidCatch(_error, info) {
+    console.error('System Error:', _error, info);
   }
 
   render() {

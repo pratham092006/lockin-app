@@ -190,7 +190,7 @@ export default function Habits() {
 
   const { habits, loading, createHabit, deleteHabit } = useHabits();
   const { completedIds, toggle, isToggling } = useTodayHabitLogs();
-  const { computeStreak, byDate, completionByDate } = useHabitLogsRange(90);
+  const { computeStreak, completionByDate } = useHabitLogsRange(90);
 
   const doneCount  = habits.filter(h => completedIds.has(h.id)).length;
   const totalCount = habits.length;

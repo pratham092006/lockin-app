@@ -37,7 +37,7 @@ const buttonVariants = cva(
   }
 );
 
-const Button = React.forwardRef(({ className, variant, size, glow, asChild = false, ...props }, ref) => {
+const Button = React.forwardRef(({ className, variant, size, glow, ...props }, ref) => {
   return (
     <motion.button
       ref={ref}

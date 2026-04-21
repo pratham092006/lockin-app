@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Scale, Ruler, Target, Calculator, Save, 
   CheckCircle, LogOut, Moon, Sun, Droplets, 

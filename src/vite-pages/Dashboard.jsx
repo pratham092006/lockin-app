@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Zap, Flame, Droplets, Target, 
@@ -40,13 +40,10 @@ export default function Dashboard() {
   const { completionByDate }         = useHabitLogsRange(7);
   
   const [mealModalOpen, setMealModalOpen] = useState(false);
-  const [gaugeReady, setGaugeReady]       = useState(false);
   const [isClient, setIsClient]           = useState(false);
 
   useEffect(() => { 
     setIsClient(true);
-    const t = setTimeout(() => setGaugeReady(true), 100); 
-    return () => clearTimeout(t); 
   }, []);
 
   if (profileLoading) {
