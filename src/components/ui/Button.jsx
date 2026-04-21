@@ -4,20 +4,20 @@ import { motion } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-2xl text-sm font-bold uppercase tracking-widest transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "inline-flex items-center justify-center rounded-2xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a9bbd0] disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        primary: "bg-[#CCFF00] text-[#121212] shadow-[0_4px_16px_rgba(204,255,0,0.2)] hover:bg-[#D4FF33] hover:shadow-[0_8px_24px_rgba(204,255,0,0.4)] hover:-translate-y-0.5",
-        secondary: "bg-white/10 text-white border border-white/10 hover:bg-white/20",
-        ghost: "bg-transparent text-white/70 hover:text-white hover:bg-white/5",
-        glass: "bg-white/5 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 shadow-xl",
-        danger: "bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20",
+        primary: "bg-[#11151d] text-[#f5f7fb] border border-[#11151d] shadow-[0_10px_24px_rgba(17,21,29,0.22)] hover:-translate-y-0.5 hover:bg-[#1a2230]",
+        secondary: "bg-[#eef2f7] text-[#151a22] border border-[#d6dfeb] hover:bg-[#e4eaf3]",
+        ghost: "bg-transparent text-[#485264] hover:text-[#12161d] hover:bg-[#e9eef6]",
+        glass: "bg-white/85 border border-white text-[#151a22] shadow-[0_10px_20px_rgba(16,24,40,0.08)] hover:bg-white",
+        danger: "bg-[#fbe8ef] text-[#9b2f4f] border border-[#f4cad8] hover:bg-[#f7dce7]",
       },
       size: {
-        default: "h-12 px-6 py-3",
-        sm: "h-9 px-4 rounded-xl text-[10px]",
-        lg: "h-14 px-10 rounded-[20px]",
+        default: "h-11 px-5 py-2.5",
+        sm: "h-9 px-3.5 rounded-xl text-xs",
+        lg: "h-14 px-8 rounded-[20px] text-base",
         icon: "size-12",
       },
       glow: {
@@ -26,8 +26,8 @@ const buttonVariants = cva(
       }
     },
     compoundVariants: [
-      { variant: 'primary', glow: true, className: 'shadow-[0_0_20px_rgba(204,255,0,0.3)]' },
-      { variant: 'glass', glow: true, className: 'shadow-[0_0_20px_rgba(0,255,255,0.1)]' },
+      { variant: 'primary', glow: true, className: 'shadow-[0_12px_28px_rgba(21,26,34,0.34)]' },
+      { variant: 'glass', glow: true, className: 'shadow-[0_12px_26px_rgba(16,24,40,0.14)]' },
     ],
     defaultVariants: {
       variant: "primary",

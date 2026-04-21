@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { 
-  Eye, EyeOff, Mail, Lock, User, 
-  ArrowRight, Loader2, ShieldCheck, 
-  Zap, Globe, Cpu, Fingerprint
+  Eye, EyeOff, Mail, Lock, User,
+  ArrowRight, Loader2, Plus, Settings, Menu
 } from 'lucide-react';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
@@ -48,176 +47,158 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-[#0a0a0a] selection:bg-cyan-500/30 selection:text-white">
-      
-      {/* Background Ambience */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] right-[-10%] size-[600px] bg-cyan-600/10 blur-[140px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-10%] left-[-10%] size-[600px] bg-purple-600/10 blur-[140px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-[30%] left-[10%] size-[300px] bg-lime-500/5 blur-[120px] rounded-full" />
-      </div>
-
-      <main className="relative z-10 w-full max-w-lg px-6 py-12 md:py-20 flex flex-col items-center">
-        
-        {/* Branding */}
-        <motion.header 
-          initial={{ opacity: 0, y: -20 }}
+    <div className="min-h-screen px-4 py-6 md:py-10">
+      <main className="mx-auto max-w-[520px]">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
+          className="glass-panel p-3"
         >
-          <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold tracking-tight text-white mb-2">Welcome Back</h1>
-            <p className="text-sm text-white/40 font-medium uppercase tracking-widest">Sign in to your account</p>
+          <div className="rounded-[20px] bg-white border border-[#dfe6f1] px-4 h-16 flex items-center justify-between">
+            <button className="size-9 rounded-full bg-[#11151d] text-white flex items-center justify-center">
+              <Menu size={16} />
+            </button>
+            <button className="size-9 rounded-full border border-[#d6dfeb] text-[#161b23] flex items-center justify-center">
+              <Settings size={15} />
+            </button>
+            <button className="h-9 px-3 rounded-full bg-[#f4f6fb] border border-[#e6ecf4] text-xs font-semibold text-[#151a22] flex items-center gap-1.5">
+              <Plus size={14} /> New scenario
+            </button>
           </div>
-        </motion.header>
 
-        {/* Auth Container */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-[40px] shadow-[0_32px_64px_rgba(0,0,0,0.6)] overflow-hidden"
-        >
-          {/* Tab Switcher */}
-          <div className="flex bg-black/40 border-b border-white/5">
-            {[
-              { id: 'signin', label: 'SIGN IN' },
-              { id: 'signup', label: 'CREATE ACCOUNT' },
-            ].map(t => (
+          <div className="pt-6 px-2 pb-2">
+            <h1 className="text-[42px] leading-[0.92] text-[#131821]" style={{ fontFamily: 'var(--font-display)' }}>
+              Start <strong className="font-extrabold">LockIn</strong> in
+              <br />
+              Minutes with <strong className="font-extrabold">Your Goals</strong>
+            </h1>
+            <p className="mt-3 text-sm text-[#6f7784]">Sign in to continue or create a new account.</p>
+          </div>
+
+          <div className="px-2 pt-3">
+            <div className="rounded-full bg-[#f1f4f9] border border-[#e2e8f0] p-1 flex items-center gap-1">
+              {[
+                { id: 'signin', label: 'Sign in' },
+                { id: 'signup', label: 'Create account' },
+              ].map(t => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setTab(t.id)}
+                  className={cn(
+                    'h-9 flex-1 rounded-full text-sm font-semibold transition-all',
+                    tab === t.id ? 'bg-[#11151d] text-white' : 'text-[#6a7382] hover:text-[#1a202b]'
+                  )}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <form onSubmit={handle} className="p-4 md:p-5 space-y-4">
+            {tab === 'signup' ? (
+              <div className="relative">
+                <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#778192]" />
+                <Input
+                  required
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Full name"
+                  className="pl-10"
+                />
+              </div>
+            ) : null}
+
+            <div className="relative">
+              <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#778192]" />
+              <Input
+                type="email"
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="email@example.com"
+                className="pl-10"
+              />
+            </div>
+
+            <div className="relative">
+              <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#778192]" />
+              <Input
+                type={showPw ? 'text' : 'password'}
+                required
+                minLength={6}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Password"
+                className="pl-10 pr-11"
+              />
               <button
-                key={t.id}
-                onClick={() => { setTab(t.id); }}
-                className={cn(
-                  "flex-1 py-5 text-[10px] font-black transition-all font-header uppercase tracking-[0.2em] relative",
-                  tab === t.id ? "text-cyan-400" : "text-white/20 hover:text-white/40"
-                )}
+                type="button"
+                onClick={() => setShowPw(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#748092] hover:text-[#1a202b]"
               >
-                {t.label}
-                {tab === t.id && (
-                  <motion.div 
-                    layoutId="auth-tab-glow" 
-                    className="absolute inset-x-4 bottom-0 h-0.5 bg-cyan-400 shadow-[0_0_10px_#00FFFF]" 
-                  />
-                )}
+                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
-            ))}
-          </div>
-
-          <form onSubmit={handle} className="p-10 space-y-6">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-black font-display text-white uppercase tracking-tight leading-none">
-                {tab === 'signin' ? 'Login' : 'Get Started'}
-              </h2>
-              <p className="text-sm text-white/40 font-medium">
-                {tab === 'signin'
-                  ? 'Sign in to your LockIn account.'
-                  : 'Join the community and start tracking your goals.'}
-              </p>
             </div>
 
-            {tab === 'signup' && (
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 px-1">Full Identity</label>
-                <div className="relative">
-                  <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/10" />
-                  <Input
-                    required
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    placeholder="E.G. JOHN DOE"
-                    className="pl-12 h-14 font-black uppercase placeholder:text-white/5 bg-white/[0.01] border-white/10"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 px-1">Global Email</label>
-              <div className="relative">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/10" />
-                <Input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="email@example.com"
-                  className="pl-12 h-14 font-black uppercase placeholder:text-white/5 bg-white/[0.01] border-white/10"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between items-end px-1">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Secret Access Key</label>
-                {tab === 'signin' && (
-                  <button type="button"
-                    onClick={async () => {
-                      if (!email) { toast.error('ENTER EMAIL FIRST.'); return; }
-                      setBusy(true);
-                      try { await resetPassword(email); toast.success('ACCESS KEY RESET PROTOCOL SENT.'); }
-                      catch (err) { toast.error('FAILED TO INITIATE RESET.'); }
-                      finally { setBusy(false); }
-                    }}
-                    className="text-[9px] font-black uppercase tracking-widest text-white/20 hover:text-cyan-400 transition-colors">
-                    LOST KEY?
-                  </button>
-                )}
-              </div>
-              <div className="relative">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/10" />
-                <Input
-                  type={showPw ? 'text' : 'password'}
-                  required
-                  minLength={6}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="pl-12 pr-14 h-14 font-black uppercase placeholder:text-white/5 bg-white/[0.01] border-white/10"
-                />
+            {tab === 'signin' ? (
+              <div className="flex justify-end">
                 <button
                   type="button"
-                  onClick={() => setShowPw(v => !v)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-white/20 hover:text-white transition-colors"
+                  onClick={async () => {
+                    if (!email) {
+                      toast.error('Please enter your email first.');
+                      return;
+                    }
+                    setBusy(true);
+                    try {
+                      await resetPassword(email);
+                      toast.success('Password reset email sent.');
+                    } catch {
+                      toast.error('Unable to send reset email.');
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                  className="text-xs font-semibold text-[#667081] hover:text-[#12161d]"
                 >
-                  {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                  Forgot password?
                 </button>
               </div>
-            </div>
+            ) : null}
 
             <Button
               type="submit"
               disabled={busy}
               glow={!busy}
-              className="w-full h-16 rounded-2xl font-black uppercase text-xs tracking-[0.2em] mt-6"
+              className="w-full h-12"
             >
-              {busy
-                ? <><Loader2 size={18} className="animate-spin mr-2" /> PROCESSING...</>
-                : <>{tab === 'signin' ? 'Sign In' : 'Create Account'} <ArrowRight size={18} className="ml-2" /></>
-              }
+              {busy ? (
+                <>
+                  <Loader2 size={16} className="animate-spin mr-2" /> Processing
+                </>
+              ) : (
+                <>
+                  {tab === 'signin' ? 'Sign in' : 'Create account'}
+                  <ArrowRight size={16} className="ml-2" />
+                </>
+              )}
             </Button>
 
-            <div className="pt-6 flex justify-center items-center gap-4 text-white/10">
-               <div className="h-px w-full bg-white/5" />
-               <div className="flex gap-3">
-                  <ShieldCheck size={14} />
-                  <Globe size={14} />
-                  <Zap size={14} />
-               </div>
-               <div className="h-px w-full bg-white/5" />
-            </div>
-
-            <p className="text-center text-[9px] font-black uppercase tracking-[0.3em] mt-2 group">
+            <p className="text-center text-xs text-[#6b7584]">
               {tab === 'signin' ? (
-                <>No identity detected?{' '}
-                  <button type="button" onClick={() => setTab('signup')}
-                    className="text-cyan-400 hover:text-white transition-colors">
-                    REGISTER NOW
+                <>
+                  No account yet?{' '}
+                  <button type="button" onClick={() => setTab('signup')} className="font-semibold text-[#12161d] hover:underline">
+                    Create one
                   </button>
                 </>
               ) : (
-                <>Identity already synced?{' '}
-                  <button type="button" onClick={() => setTab('signin')}
-                    className="text-cyan-400 hover:text-white transition-colors">
-                    ACCESS LOGIN
+                <>
+                  Already have an account?{' '}
+                  <button type="button" onClick={() => setTab('signin')} className="font-semibold text-[#12161d] hover:underline">
+                    Sign in
                   </button>
                 </>
               )}
@@ -225,27 +206,7 @@ export default function Login() {
           </form>
         </motion.div>
 
-        {/* Global Footer info */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-12 text-center"
-        >
-          <div className="flex items-center gap-6 justify-center opacity-20 mb-6">
-             <div className="flex items-center gap-2">
-                <Cpu size={12} />
-                <span className="text-[8px] font-black uppercase tracking-widest">Core.v8</span>
-             </div>
-             <div className="flex items-center gap-2">
-                <div className="size-1.5 rounded-full bg-lime-400 animate-pulse" />
-                <span className="text-[8px] font-black uppercase tracking-widest">Network.Stable</span>
-             </div>
-          </div>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">
-            Developed by Pratham Pingle
-          </p>
-        </motion.div>
+        <p className="text-center mt-5 text-[11px] text-[#5f6877]">Developed by Pratham Pingle</p>
       </main>
     </div>
   );

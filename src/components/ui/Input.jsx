@@ -5,7 +5,7 @@ const Input = React.forwardRef(({ className, type, label, error, ...props }, ref
   return (
     <div className="w-full space-y-1.5">
       {label && (
-        <label className="text-[10px] font-bold uppercase tracking-widest text-white/50 ml-2">
+        <label className="text-[10px] font-semibold uppercase tracking-widest text-[#6f7784] ml-1.5">
           {label}
         </label>
       )}
@@ -20,7 +20,7 @@ const Input = React.forwardRef(({ className, type, label, error, ...props }, ref
         {...props}
       />
       {error && (
-        <p className="text-[10px] font-bold text-red-400 mt-1 ml-2">
+        <p className="text-[10px] font-semibold text-[#b64068] mt-1 ml-1.5">
           {error}
         </p>
       )}
