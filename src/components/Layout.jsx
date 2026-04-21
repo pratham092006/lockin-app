@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -17,16 +19,19 @@ import { useAuth } from '../hooks/useAuth.jsx';
 import { cn } from '../lib/utils';
 
 const NAV_ITEMS = [
-  { path: '/',          icon: LayoutDashboard, label: 'Dashboard', short: 'Dash' },
+  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', short: 'Dash' },
   { path: '/workouts',  icon: Dumbbell,        label: 'Workouts',  short: 'Gym' },
   { path: '/nutrition', icon: Utensils,        label: 'Nutrition', short: 'Meal' },
   { path: '/habits',    icon: CalendarCheck,   label: 'Habits',    short: 'Habits' },
   { path: '/settings',  icon: Settings,        label: 'Settings',  short: 'Settings' },
 ];
 
-function Sidebar({ open, onClose, user }) {
+function isActivePath(pathname, itemPath) {
+  return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
+}
+
+function Sidebar({ open, onClose, user, pathname, router }) {
   const { signOutUser } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
 
   return (
@@ -112,7 +117,29 @@ function Sidebar({ open, onClose, user }) {
                   <img src={user.photoURL} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <UserCircle2 size={18} className="text-[#596375]" />
-                )}
+=======
+               </p>
+               <p className="text-[10px] text-white/30 mt-1 truncate uppercase tracking-widest font-medium">Standard Plan</p>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2 mt-4 px-1">
+             <button 
+               onClick={async () => { await signOutUser(); router.push('/login'); }}
+               className="w-full flex items-center justify-center gap-2 h-10 rounded-lg text-[10px] font-bold uppercase tracking-widest text-red-500/70 hover:text-white hover:bg-red-500 transition-all active:scale-95"
+             >
+               <LogOut size={14} /> SIGN OUT
+             </button>
+             
+             <p className="py-4 text-[9px] font-black text-white/10 uppercase tracking-[0.3em] text-center border-t border-white/5">
+                V1.0.4.PRO-ALPHA • STABLE
+             </p>
+>>>>>>> origin/master
+          </div>
+        </div>
+      </aside>
+    </>
+          <Menu size={18} />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-[#151a22] truncate leading-none">{user?.displayName || 'User'}</p>
@@ -129,30 +156,6 @@ function Sidebar({ open, onClose, user }) {
                 <LogOut size={14} />
               </button>
             </div>
-          </div>
-        </div>
-      </aside>
-    </>
-  );
-}
-
-function Header({ onMenuClick }) {
-  const { user } = useAuth();
-  const location = useLocation();
-  const currentPath = NAV_ITEMS.find(i => i.path === location.pathname)?.label || 'DASHBOARD';
-
-  return (
-    <header className="sticky top-0 z-30 h-20 px-3 md:px-4">
-      <div className="glass-panel h-full px-4 md:px-6 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <button
-          onClick={onMenuClick}
-          className={cn(
-            "lg:hidden flex items-center justify-center size-10 rounded-full transition-all border",
-            "bg-[#11151d] border-[#11151d] text-white"
-          )}
-        >
-          <Menu size={18} />
         </button>
 
         <div>
@@ -190,18 +193,18 @@ function Header({ onMenuClick }) {
 }
 
 function BottomNav() {
-  const location = useLocation();
+  const pathname = usePathname();
 
   return (
     <nav className="fixed bottom-3 left-3 right-3 z-50 lg:hidden flex justify-around items-center h-16 px-2 rounded-3xl glass-panel">
       
       {NAV_ITEMS.map((item) => {
-        const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+        const isActive = isActivePath(pathname, item.path);
         
         return (
-          <NavLink 
+          <Link
             key={item.path} 
-            to={item.path}
+            href={item.path}
             className={cn(
               "relative z-10 flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 active:scale-90",
               isActive ? "bg-[#11151d] text-white" : "text-[#5f6876]"
@@ -225,14 +228,22 @@ function BottomNav() {
   );
 }
 
-export default function Layout() {
+export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen flex relative text-[#151a22] selection:bg-[#c7d4e4]/70">
 
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} user={user} />
+      <Sidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        user={user}
+        pathname={pathname}
+        router={router}
+      />
       
       <main className="flex-1 flex flex-col lg:ml-72 relative z-10 w-full min-w-0">
         <Header onMenuClick={() => setSidebarOpen(true)} />

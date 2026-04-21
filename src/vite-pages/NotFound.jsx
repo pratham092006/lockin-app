@@ -1,5 +1,7 @@
+"use client";
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Home, WifiOff, RefreshCcw, ShieldAlert } from 'lucide-react';
 import { Button } from '../components/ui/Button';
@@ -39,7 +41,7 @@ export default function NotFound() {
               </p>
            </div>
 
-           <Link to="/">
+                <Link href="/dashboard">
              <Button className="w-full h-16 rounded-2xl bg-white text-black font-bold uppercase tracking-widest hover:bg-white/90">
                 <Home size={18} className="mr-2" /> Back to Dashboard
              </Button>
