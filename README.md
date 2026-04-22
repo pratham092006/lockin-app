@@ -73,9 +73,10 @@ Ensure you have Node.js installed on your machine.
 3.  **Set up your environment variables**
     Create a `.env` file in the root directory and add your Supabase credentials:
     ```env
-    VITE_SUPABASE_URL=your_supabase_project_url
-    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
     ```
+    If you already use `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, the app now supports those too.
 
 4.  **Run the development server**
     ```sh

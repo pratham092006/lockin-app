@@ -8,10 +8,8 @@ import {
   Eye, EyeOff, Mail, Lock, User,
   ArrowRight, Loader2, Plus, Settings, Menu
 } from 'lucide-react';
-import { Input } from '../components/ui/Input';
-import { Button } from '../components/ui/Button';
-import { cn } from '../lib/utils';
 import { toast } from 'sonner';
+import styles from './Login.module.css';
 
 export default function Login() {
   const router = useRouter();
@@ -49,36 +47,36 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen px-4 py-6 md:py-10">
-      <main className="mx-auto max-w-[520px]">
+    <div className={styles.authPage}>
+      <main className={styles.authShell}>
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-panel p-3"
+          className={styles.authCard}
         >
-          <div className="rounded-[20px] bg-white border border-[#dfe6f1] px-4 h-16 flex items-center justify-between">
-            <button className="size-9 rounded-full bg-[#11151d] text-white flex items-center justify-center">
+          <div className={styles.topBar}>
+            <button type="button" className={styles.iconButtonDark}>
               <Menu size={16} />
             </button>
-            <button className="size-9 rounded-full border border-[#d6dfeb] text-[#161b23] flex items-center justify-center">
+            <button type="button" className={styles.iconButtonSoft}>
               <Settings size={15} />
             </button>
-            <button className="h-9 px-3 rounded-full bg-[#f4f6fb] border border-[#e6ecf4] text-xs font-semibold text-[#151a22] flex items-center gap-1.5">
+            <button type="button" className={styles.scenarioButton}>
               <Plus size={14} /> New scenario
             </button>
           </div>
 
-          <div className="pt-6 px-2 pb-2">
-            <h1 className="text-[42px] leading-[0.92] text-[#131821]" style={{ fontFamily: 'var(--font-display)' }}>
+          <div className={styles.heroBlock}>
+            <h1 className={styles.heroTitle}>
               Start <strong className="font-extrabold">LockIn</strong> in
               <br />
               Minutes with <strong className="font-extrabold">Your Goals</strong>
             </h1>
-            <p className="mt-3 text-sm text-[#6f7784]">Sign in to continue or create a new account.</p>
+            <p className={styles.heroSubtitle}>Sign in to continue or create a new account.</p>
           </div>
 
-          <div className="px-2 pt-3">
-            <div className="rounded-full bg-[#f1f4f9] border border-[#e2e8f0] p-1 flex items-center gap-1">
+          <div className={styles.tabWrap}>
+            <div className={styles.tabTrack}>
               {[
                 { id: 'signin', label: 'Sign in' },
                 { id: 'signup', label: 'Create account' },
@@ -87,10 +85,7 @@ export default function Login() {
                   key={t.id}
                   type="button"
                   onClick={() => setTab(t.id)}
-                  className={cn(
-                    'h-9 flex-1 rounded-full text-sm font-semibold transition-all',
-                    tab === t.id ? 'bg-[#11151d] text-white' : 'text-[#6a7382] hover:text-[#1a202b]'
-                  )}
+                  className={tab === t.id ? styles.tabButtonActive : styles.tabButton}
                 >
                   {t.label}
                 </button>
@@ -98,54 +93,54 @@ export default function Login() {
             </div>
           </div>
 
-          <form onSubmit={handle} className="p-4 md:p-5 space-y-4">
+          <form onSubmit={handle} className={styles.form}>
             {tab === 'signup' ? (
-              <div className="relative">
-                <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#778192]" />
-                <Input
+              <div className={styles.field}>
+                <User size={16} className={styles.fieldIcon} />
+                <input
                   required
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="Full name"
-                  className="pl-10"
+                  className={styles.fieldInput}
                 />
               </div>
             ) : null}
 
-            <div className="relative">
-              <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#778192]" />
-              <Input
+            <div className={styles.field}>
+              <Mail size={16} className={styles.fieldIcon} />
+              <input
                 type="email"
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="email@example.com"
-                className="pl-10"
+                className={styles.fieldInput}
               />
             </div>
 
-            <div className="relative">
-              <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#778192]" />
-              <Input
+            <div className={styles.field}>
+              <Lock size={16} className={styles.fieldIcon} />
+              <input
                 type={showPw ? 'text' : 'password'}
                 required
                 minLength={6}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Password"
-                className="pl-10 pr-11"
+                className={styles.fieldInput}
               />
               <button
                 type="button"
                 onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#748092] hover:text-[#1a202b]"
+                className={styles.passwordToggle}
               >
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
 
             {tab === 'signin' ? (
-              <div className="flex justify-end">
+              <div className={styles.forgotRow}>
                 <button
                   type="button"
                   onClick={async () => {
@@ -163,43 +158,42 @@ export default function Login() {
                       setBusy(false);
                     }
                   }}
-                  className="text-xs font-semibold text-[#667081] hover:text-[#12161d]"
+                  className={styles.forgotButton}
                 >
                   Forgot password?
                 </button>
               </div>
             ) : null}
 
-            <Button
+            <button
               type="submit"
               disabled={busy}
-              glow={!busy}
-              className="w-full h-12"
+              className={styles.submitButton}
             >
               {busy ? (
                 <>
-                  <Loader2 size={16} className="animate-spin mr-2" /> Processing
+                  <Loader2 size={16} className={styles.spinner} /> Processing
                 </>
               ) : (
                 <>
                   {tab === 'signin' ? 'Sign in' : 'Create account'}
-                  <ArrowRight size={16} className="ml-2" />
+                  <ArrowRight size={16} className={styles.arrowIcon} />
                 </>
               )}
-            </Button>
+            </button>
 
-            <p className="text-center text-xs text-[#6b7584]">
+            <p className={styles.switchText}>
               {tab === 'signin' ? (
                 <>
                   No account yet?{' '}
-                  <button type="button" onClick={() => setTab('signup')} className="font-semibold text-[#12161d] hover:underline">
+                  <button type="button" onClick={() => setTab('signup')} className={styles.switchLink}>
                     Create one
                   </button>
                 </>
               ) : (
                 <>
                   Already have an account?{' '}
-                  <button type="button" onClick={() => setTab('signin')} className="font-semibold text-[#12161d] hover:underline">
+                  <button type="button" onClick={() => setTab('signin')} className={styles.switchLink}>
                     Sign in
                   </button>
                 </>
@@ -208,7 +202,7 @@ export default function Login() {
           </form>
         </motion.div>
 
-        <p className="text-center mt-5 text-[11px] text-[#5f6877]">Developed by Pratham Pingle</p>
+        <p className={styles.credit}>Developed by Pratham Pingle</p>
       </main>
     </div>
   );

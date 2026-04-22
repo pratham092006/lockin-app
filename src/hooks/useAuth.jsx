@@ -42,7 +42,7 @@ function withTimeout(promise, timeoutMs, fallbackValue) {
 
 function requireSupabase() {
   if (!supabase) {
-    throw new Error('Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel.');
+    throw new Error('Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY (or VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY) and redeploy.');
   }
   return supabase;
 }
