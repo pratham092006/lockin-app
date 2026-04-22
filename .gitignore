@@ -14,6 +14,8 @@ dist-ssr
 out
 .next/
 *.local
+eslint_all.json
+eslint_output.json
 
 # Environment
 .env
