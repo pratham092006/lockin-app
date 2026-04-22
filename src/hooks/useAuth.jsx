@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase, isSupabaseConfigured, supabaseConfigIssue } from '../lib/supabase';
 
 const AuthContext = createContext({
   user: null, session: null, profile: null,
@@ -42,6 +42,9 @@ function withTimeout(promise, timeoutMs, fallbackValue) {
 
 function requireSupabase() {
   if (!supabase) {
+    if (supabaseConfigIssue === 'mismatched-project-ref') {
+      throw new Error('Supabase config mismatch: URL and anon key belong to different projects. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY from the same Supabase project and redeploy.');
+    }
     throw new Error('Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY (or VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY) and redeploy.');
   }
   return supabase;

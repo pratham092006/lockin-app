@@ -1,5 +1,6 @@
 import js from '@eslint/js'
 import globals from 'globals'
+import nextPlugin from '@next/eslint-plugin-next'
 import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import { defineConfig, globalIgnores } from 'eslint/config'
@@ -13,6 +14,9 @@ export default defineConfig([
       react.configs.flat.recommended,
       reactHooks.configs.flat.recommended,
     ],
+    plugins: {
+      '@next/next': nextPlugin,
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: {
@@ -26,6 +30,9 @@ export default defineConfig([
       },
     },
     rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs['core-web-vitals'].rules,
+      '@next/next/no-img-element': 'off',
       'no-unused-vars': ['warn', { 
         varsIgnorePattern: '^[A-Z_]',
         argsIgnorePattern: '^_', // Ignore parameters starting with underscore
