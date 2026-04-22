@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Dumbbell,
@@ -32,8 +33,8 @@ function isActivePath(pathname, itemPath) {
 
 function Sidebar({ open, onClose, user }) {
   const { signOutUser } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <>
@@ -87,12 +88,12 @@ function Sidebar({ open, onClose, user }) {
 
           <nav className="flex-1 px-3 overflow-y-auto custom-scrollbar space-y-2.5">
             {NAV_ITEMS.map((item) => {
-              const isActive = isActivePath(location.pathname, item.path);
+              const isActive = isActivePath(pathname, item.path);
 
               return (
-                <NavLink
+                <Link
                   key={item.path}
-                  to={item.path}
+                  href={item.path}
                   onClick={onClose}
                   className={cn(
                     'group h-11 rounded-2xl border px-4 text-sm font-medium flex items-center justify-between transition-all',
@@ -106,7 +107,7 @@ function Sidebar({ open, onClose, user }) {
                     <span className="truncate">{item.label}</span>
                   </div>
                   {isActive ? <Circle size={8} className="fill-[#11151d] text-[#11151d]" /> : null}
-                </NavLink>
+                </Link>
               );
             })}
           </nav>
@@ -127,7 +128,7 @@ function Sidebar({ open, onClose, user }) {
               <button
                 onClick={async () => {
                   await signOutUser();
-                  navigate('/login');
+                  router.replace('/login');
                 }}
                 className="ml-auto h-8 px-2.5 rounded-xl border border-[#d7deea] bg-white text-[#5d6676] hover:text-[#151a22]"
                 title="Sign out"
@@ -195,7 +196,7 @@ function Header({ onMenuClick, pathname }) {
 }
 
 function BottomNav() {
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   return (
     <nav className="fixed bottom-3 left-3 right-3 z-50 lg:hidden flex justify-around items-center h-16 px-2 rounded-3xl glass-panel">
@@ -203,9 +204,9 @@ function BottomNav() {
         const isActive = isActivePath(pathname, item.path);
 
         return (
-          <NavLink
+          <Link
             key={item.path}
-            to={item.path}
+            href={item.path}
             className={cn(
               'relative z-10 flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 active:scale-90',
               isActive ? 'bg-[#11151d] text-white' : 'text-[#5f6876]'
@@ -219,7 +220,7 @@ function BottomNav() {
             <span className={cn('text-[9px] font-semibold mt-1 transition-all', isActive ? 'opacity-100' : 'opacity-70')}>
               {item.short}
             </span>
-          </NavLink>
+          </Link>
         );
       })}
     </nav>
@@ -229,7 +230,7 @@ function BottomNav() {
 export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   return (
     <div className="min-h-screen flex relative text-[#151a22] selection:bg-[#c7d4e4]/70">
