@@ -37,7 +37,7 @@
 This project is built using a modern, scalable tech stack:
 
 *   [![React][React.js]][React-url]
-*   [![Vite][Vite.js]][Vite-url]
+*   [![Next.js][Next.js]][Next-url]
 *   [![Tailwind CSS][Tailwind.css]][Tailwind-url]
 *   [![Supabase][Supabase]][Supabase-url]
 *   **Recharts** (Data Visualization)
@@ -82,7 +82,7 @@ Ensure you have Node.js installed on your machine.
     ```sh
     npm run dev
     ```
-    The app should now be running on `http://localhost:5173`.
+    The app should now be running on `http://localhost:3000`.
 
 ---
 
@@ -90,17 +90,18 @@ Ensure you have Node.js installed on your machine.
 
 ```text
 lockin-project/
+├── app/                    # Next.js App Router pages and layouts
 ├── public/                 # Static assets
 ├── src/
 │   ├── components/         # Reusable UI components (Modals, Panels, etc.)
 │   ├── hooks/              # Custom React hooks (Data fetching & state)
 │   ├── lib/                # Utility functions, Supabase client, config
-│   ├── pages/              # Main application views/routes
-│   ├── App.jsx             # Root component & routing
+│   ├── vite-pages/         # Page components used by App Router route wrappers
 │   ├── index.css           # Global styles and Tailwind configurations
-│   └── main.jsx            # Entry point
+│   └── assets/             # Static media assets
 ├── .env.example            # Example environment variables
-├── tailwind.config.js      # Tailwind CSS configuration
+├── next.config.mjs         # Next.js configuration
+├── postcss.config.mjs      # Tailwind PostCSS integration
 └── package.json            # Project metadata and dependencies
 ```
 
@@ -135,8 +136,8 @@ Project Link: [https://github.com/your_username/lockin-project](https://github.c
 <!-- Markdowns & Links -->
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [React-url]: https://reactjs.org/
-[Vite.js]: https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E
-[Vite-url]: https://vitejs.dev/
+[Next.js]: https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
+[Next-url]: https://nextjs.org/
 [Tailwind.css]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
 [Tailwind-url]: https://tailwindcss.com/
 [Supabase]: https://img.shields.io/badge/Supabase-18181A?style=for-the-badge&logo=supabase&logoColor=3ECF8E
