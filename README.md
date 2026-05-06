@@ -18,6 +18,7 @@
 ---
 
 ## 📖 About The Project
+CRAZZZYYYYYYY
 
 **LockIn** is a modern, responsive web application designed to help users take control of their health, fitness, and daily habits. Built with an elegant dark mode aesthetic ("Lucid Vitality"), the app provides a unified ecosystem for tracking workouts, nutrition, and lifestyle habits to keep you disciplined and locked in on your goals.
 
